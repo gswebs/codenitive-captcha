@@ -3,7 +3,7 @@ if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class JMB_WC_Captcha_Settings {
+class JMB_Captcha_Settings {
     public static function init() {
         add_action('admin_init', array(__CLASS__, 'register_settings'));
         add_action('admin_menu', array(__CLASS__, 'add_settings_page'));
@@ -121,7 +121,7 @@ class JMB_WC_Captcha_Settings {
             self::jmb_register_field([
                 'option_group' => 'jmb_captcha_options',
                 'option_name'  => 'jmb_captcha_woo_register',
-                'field_label'  => 'Woocommerce Registration Form',
+                'field_label'  => 'Registration Form',
                 'field_type'   => 'checkbox',
                 'page'         => 'jmb_captcha_options',
                 'section'      => 'jmb_captcha_woo_options_section',
@@ -130,7 +130,7 @@ class JMB_WC_Captcha_Settings {
             self::jmb_register_field([
                 'option_group' => 'jmb_captcha_options',
                 'option_name'  => 'jmb_captcha_woo_login',
-                'field_label'  => 'Woocommerce Login Form',
+                'field_label'  => 'Login Form',
                 'field_type'   => 'checkbox',
                 'page'         => 'jmb_captcha_options',
                 'section'      => 'jmb_captcha_woo_options_section',
@@ -139,7 +139,7 @@ class JMB_WC_Captcha_Settings {
             self::jmb_register_field([
                 'option_group' => 'jmb_captcha_options',
                 'option_name'  => 'jmb_captcha_woo_checkout',
-                'field_label'  => 'Woocommerce Checkout',
+                'field_label'  => 'Checkout',
                 'field_type'   => 'checkbox',
                 'page'         => 'jmb_captcha_options',
                 'section'      => 'jmb_captcha_woo_options_section',
@@ -148,7 +148,7 @@ class JMB_WC_Captcha_Settings {
             self::jmb_register_field([
                 'option_group' => 'jmb_captcha_options',
                 'option_name'  => 'jmb_captcha_woo_forgetpass',
-                'field_label'  => 'Woocommerce Reset Password',
+                'field_label'  => 'Reset Password',
                 'field_type'   => 'checkbox',
                 'page'         => 'jmb_captcha_options',
                 'section'      => 'jmb_captcha_woo_options_section',
@@ -168,7 +168,7 @@ class JMB_WC_Captcha_Settings {
         self::jmb_register_field([
             'option_group' => 'jmb_captcha_options',
             'option_name'  => 'jmb_captcha_wp_login',
-            'field_label'  => 'WordPress Login',
+            'field_label'  => 'Login Form',
             'field_type'   => 'checkbox',
             'page'         => 'jmb_captcha_options',
             'section'      => 'jmb_captcha_wp_options_section',
@@ -177,7 +177,7 @@ class JMB_WC_Captcha_Settings {
         self::jmb_register_field([
             'option_group' => 'jmb_captcha_options',
             'option_name'  => 'jmb_captcha_wp_register',
-            'field_label'  => 'WordPress Register',
+            'field_label'  => 'Registration Form',
             'field_type'   => 'checkbox',
             'page'         => 'jmb_captcha_options',
             'section'      => 'jmb_captcha_wp_options_section',
@@ -186,7 +186,7 @@ class JMB_WC_Captcha_Settings {
         self::jmb_register_field([
             'option_group' => 'jmb_captcha_options',
             'option_name'  => 'jmb_captcha_wp_forget_pass',
-            'field_label'  => 'WordPress Reset Password',
+            'field_label'  => 'Reset Password',
             'field_type'   => 'checkbox',
             'page'         => 'jmb_captcha_options',
             'section'      => 'jmb_captcha_wp_options_section',
@@ -195,7 +195,7 @@ class JMB_WC_Captcha_Settings {
         self::jmb_register_field([
             'option_group' => 'jmb_captcha_options',
             'option_name'  => 'jmb_captcha_wp_comments',
-            'field_label'  => 'WordPress Comments',
+            'field_label'  => 'Posts Comments',
             'field_type'   => 'checkbox',
             'page'         => 'jmb_captcha_options',
             'section'      => 'jmb_captcha_wp_options_section',
