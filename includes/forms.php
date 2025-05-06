@@ -5,6 +5,10 @@ if (!defined('ABSPATH')) {
 
 class JMB_Captcha_Render {
 
+    // Load helper methods
+    // The trait Recaptcha_Utils come from the includes/captcha-utils.php file.
+    use Recaptcha_Utils;
+
     protected $config;
 
     public function __construct(JMB_Recaptcha_Config $config = null) {
@@ -20,10 +24,13 @@ class JMB_Captcha_Render {
 
     public function init_v2() {
     
+        $hide_login = $this->ck_login_hide($this->config->get_hide_login());
+
         if(!is_single()){
-            add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+            //add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+            $this->config->maybe_enqueue_script();
         }
-        add_action('login_enqueue_scripts', array($this, 'enqueue_scripts'));
+        add_action('login_enqueue_scripts', array($this->config, 'enqueue_script'));
 
         if (class_exists('WooCommerce')) {
         
@@ -36,9 +43,11 @@ class JMB_Captcha_Render {
                 add_filter('woocommerce_process_login_errors', array($this, 'validate_login_captcha'), 10, 3);
             }
             if ( $this->config->get_wcc_checkout() == 1 ) {
-                add_action('woocommerce_review_order_before_submit', array($this, 'display_captcha'), 20);
-                add_action('woocommerce_checkout_process', array($this, 'validate_checkout_captcha'), 10);
-                add_action('wp_footer', array($this, 'add_checkout_recaptcha_script'), 99);
+                if($hide_login == 'yes'){
+                    add_action('woocommerce_review_order_before_submit', array($this, 'display_captcha'), 20);
+                    add_action('woocommerce_checkout_process', array($this, 'validate_checkout_captcha'), 10);
+                    add_action('wp_footer', array($this, 'add_checkout_recaptcha_script'), 99);
+                }
             }
             if ( $this->config->get_wcc_forgetpass() == 1 ) {
                 add_action('woocommerce_lostpassword_form', array($this, 'display_captcha'), 20);

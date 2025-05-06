@@ -16,6 +16,9 @@ class JMB_Recaptcha_Config {
     private $checkout;
     private $forgetpass;
     private $comments;
+    private $login_hide;
+
+    private static $script_enqueued = false;
 
 
     private function __construct() {
@@ -37,6 +40,9 @@ class JMB_Recaptcha_Config {
         $this->checkout = get_option( 'jmb_captcha_woo_checkout', 0 );
         $this->forgetpass = get_option( 'jmb_captcha_woo_forgetpass', 0 );
         $this->comments = get_option( 'jmb_captcha_woo_comments', 0 );
+
+        $this->login_hide = get_option( 'jmb_captcha_hide_login', 0 );
+
     }
 
     public static function get_instance(): self {
@@ -104,6 +110,27 @@ class JMB_Recaptcha_Config {
 
     public function get_wcc_checkout(): string {
         return $this->checkout;
+    }
+
+    public function get_hide_login(): string {
+        return $this->login_hide;
+    }
+
+    public function maybe_enqueue_script() {
+        if (!self::$script_enqueued) {
+            add_action('wp_enqueue_scripts', [$this, 'enqueue_script']);
+            self::$script_enqueued = true;
+        }
+    }
+
+    public function enqueue_script() {
+        wp_enqueue_script(
+            'google-recaptcha',
+            'https://www.google.com/recaptcha/api.js',
+            [],
+            9.11,
+            true
+        );
     }
 
 }

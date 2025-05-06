@@ -63,8 +63,7 @@ class JMB_Captcha_Settings {
         add_settings_section('jmb_captcha_googlekeys_v3_section', '<h3>Google Captcha V3</h3><hr>', null, 'jmb_captcha_googlekeys');
         add_settings_section('jmb_captcha_woo_options_section', '<h3>Woocommerce Options</h3><hr>', null, 'jmb_captcha_options');
         add_settings_section('jmb_captcha_wp_options_section', '<h3>WordPress Options</h3><hr>', null, 'jmb_captcha_options');
-
-
+        add_settings_section('jmb_captcha_miscellaneous_section', '<h3>Miscellaneous</h3><hr>', null, 'jmb_captcha_options');
 
         self::jmb_register_field([
             'option_group' => 'jmb_captcha_googlekeys',
@@ -200,6 +199,16 @@ class JMB_Captcha_Settings {
             'page'         => 'jmb_captcha_options',
             'section'      => 'jmb_captcha_wp_options_section',
         ]);
+
+        self::jmb_register_field([
+            'option_group' => 'jmb_captcha_options',
+            'option_name'  => 'jmb_captcha_hide_login',
+            'field_label'  => 'Select to hide for login users',
+            'field_type'   => 'checkbox',
+            'page'         => 'jmb_captcha_options',
+            'section'      => 'jmb_captcha_miscellaneous_section',
+        ]);
+
 
     }
 

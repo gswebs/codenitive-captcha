@@ -6,6 +6,7 @@ if (!defined('ABSPATH')) {
 class JMB_Comments_Captcha_Render {
     
     // Load helper methods
+    // The trait Recaptcha_Utils come from the includes/captcha-utils.php file.
     use Recaptcha_Utils;
 
     protected $config;
@@ -29,24 +30,21 @@ class JMB_Comments_Captcha_Render {
 
         $wp_comments_enabled = $this->ck_single($this->config->get_wp_comments());
         $wc_comments_enabled = $this->ck_product($this->config->get_wcc_comments());
+        $hide_login = $this->ck_login_hide($this->config->get_hide_login());
 
-        if ($wp_comments_enabled === 'yes' || $wc_comments_enabled === 'yes') {
-            add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
-            add_filter('comment_form_defaults', [$this, 'render_recaptcha_html'], 50, 1);
+        if($hide_login == 'yes'){
+            if ($wp_comments_enabled === 'yes' || $wc_comments_enabled === 'yes') {
+                $this->config->maybe_enqueue_script();
+                //add_action('wp_enqueue_scripts', [$this, 'enqueue_scripts']);
+                add_filter('comment_form_defaults', [$this, 'render_recaptcha_html'], 50, 1);
+            }
         }
 
     }
 
-    public function enqueue_scripts() {
-        //wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?explicit&hl=' . get_locale(), array(), null, array('strategy' => 'defer'));
-        wp_enqueue_script(
-            'google-recaptcha',
-            'https://www.google.com/recaptcha/api.js',
-            [],
-            null,
-            true
-        );
-    }
+    // public function enqueue_scripts() {
+    //     wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?explicit&hl=' . get_locale(), array(), null, array('strategy' => 'defer'));
+    // }
 
     public function render_recaptcha_html($defaults) {
         $site_key = $this->config->get_site_key_v2();
@@ -89,6 +87,7 @@ class JMB_Comments_Captcha_Render {
                 );
             }
         }
+        
     }       
 
 }
