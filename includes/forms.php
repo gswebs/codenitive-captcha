@@ -81,9 +81,9 @@ class JMB_Captcha_Render {
         } 
     } 
 
-    public function enqueue_scripts() {
-        wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?explicit&hl=' . get_locale(), array(), null, array('strategy' => 'defer'));
-    }
+    // public function enqueue_scripts() {
+    //     wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?explicit&hl=' . get_locale(), array(), null, array('strategy' => 'defer'));
+    // }
 
     public function validate_checkout_captcha() {
         $this->verify_checkout_captcha();
