@@ -42,10 +42,6 @@ class JMB_Comments_Captcha_Render {
 
     }
 
-    // public function enqueue_scripts() {
-    //     wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?explicit&hl=' . get_locale(), array(), null, array('strategy' => 'defer'));
-    // }
-
     public function render_recaptcha_html($defaults) {
         $site_key = $this->config->get_site_key_v2();
         $captcha = '<div class="g-recaptcha" data-sitekey="' . esc_attr($site_key) . '"></div>';
