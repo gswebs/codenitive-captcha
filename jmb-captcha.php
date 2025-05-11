@@ -1,10 +1,19 @@
 <?php
 /*
 * Plugin Name: JMB CAPTCHA
-* Description: Adds CAPTCHA to WooCommerce and WordPress.
+* Plugin URI:  https://github.com/gswebs/jmb-captcha
+* Description: Enhance your website's security by integrating CAPTCHA verification into key forms across both WooCommerce and WordPress. This plugin helps prevent spam and unauthorized access by adding CAPTCHA challenges to the WordPress Core and Woocommerce Forms
 * Version: 0.1.0
-* Author: Gurjit Singh
-* Text Domain: jmb-captcha
+* Requires at least: 6.5
+* Requires PHP:      7.4
+* Author:            Gurjit Singh
+* Author URI:        https://github.com/gswebs
+* License:           GPL v2 or later
+* License URI:       https://www.gnu.org/licenses/gpl-2.0.html
+* Text Domain:       jmb-captcha-domain
+* Domain Path:       /languages
+*
+* @package jmb-captcha
 */
 
 if (!defined('ABSPATH')) {
