@@ -34,27 +34,25 @@ class JMB_Captcha_Settings {
             <h1>JMB CAPTCHA Settings</h1>
 
             <h2 class="nav-tab-wrapper">
-                <a href="#" class="nav-tab nav-tab-active" data-tab="googlerecaptcha">Google reCaptcha</a>
-                <a href="#" class="nav-tab" data-tab="options">Options</a>
+                <a href="?page=jmb-captcha-settings&tab=googlerecaptcha" class="nav-tab <?php echo $active_tab == 'googlerecaptcha' ? 'nav-tab-active' : ''; ?>">Google reCaptcha</a>
+                <a href="?page=jmb-captcha-settings&tab=options" class="nav-tab <?php echo $active_tab == 'options' ? 'nav-tab-active' : ''; ?>">Options</a>
             </h2>
             <br>
             <form method="post" action="options.php">
 
-                <div id="googlerecaptcha" class="tab-content" style="display: block;">
+                <?php
+                if ($active_tab == 'googlerecaptcha') {
+                    ?>
                     <a href="https://www.google.com/recaptcha/admin/create" target="_blank">Click here to get the Site and Secret Keys</a>
                     <br>
                     <?php
-                        settings_fields('jmb_captcha_googlekeys');
-                        do_settings_sections('jmb_captcha_googlekeys');
-                    ?>
-                </div>
-
-                <div id="options" class="tab-content" style="display: none;">
-                    <?php
+                    settings_fields('jmb_captcha_googlekeys');
+                    do_settings_sections('jmb_captcha_googlekeys');
+                } elseif ($active_tab == 'options') {
                     settings_fields('jmb_captcha_options');
                     do_settings_sections('jmb_captcha_options');
-                    ?>
-                </div>  
+                }
+                ?>
                 
                 <?php submit_button(); ?>
             </form>
@@ -63,25 +61,7 @@ class JMB_Captcha_Settings {
                     color: #135e96;
                 }
             </style>
-            <script>
-                document.addEventListener('DOMContentLoaded', function () {
-                    const tabs = document.querySelectorAll('.nav-tab');
-                    const contents = document.querySelectorAll('.tab-content');
-
-                    tabs.forEach(tab => {
-                        tab.addEventListener('click', function (e) {
-                            e.preventDefault();
-
-                            tabs.forEach(t => t.classList.remove('nav-tab-active'));
-                            tab.classList.add('nav-tab-active');
-
-                            contents.forEach(content => {
-                                content.style.display = content.id === tab.dataset.tab ? 'block' : 'none';
-                            });
-                        });
-                    });
-                });
-            </script>
+            
         </div>
         <?php
     }
