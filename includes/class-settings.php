@@ -7,6 +7,7 @@ class JMB_Captcha_Settings {
     public static function init() {
         add_action('admin_init', array(__CLASS__, 'register_settings'));
         add_action('admin_menu', array(__CLASS__, 'add_settings_page'));
+        add_filter( 'plugin_action_links_' . JMB_CAPTCHA_PLUGIN_BASENAME, [__CLASS__, 'add_action_links'] );
     }
 
     public static function add_settings_page() {
@@ -17,6 +18,13 @@ class JMB_Captcha_Settings {
             'jmb-captcha-settings',
             array(__CLASS__, 'render_settings_page')
         );
+    }
+
+    public static function add_action_links ( $links ) {
+        $mylinks = array(
+            '<a href="' . admin_url( 'options-general.php?page=jmb-captcha-settings' ) . '" target="_blank">Settings</a>',
+        );
+        return array_merge( $links, $mylinks );
     }
 
     public static function render_settings_page() {
