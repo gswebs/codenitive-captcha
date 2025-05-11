@@ -1,4 +1,8 @@
 <?php
+if (!defined('ABSPATH')) {
+    exit; // Exit if accessed directly
+}
+
 class JMB_Recaptcha_Config {
     private static $instance = null;
     private $enable_v2;
@@ -128,7 +132,7 @@ class JMB_Recaptcha_Config {
             'google-recaptcha',
             'https://www.google.com/recaptcha/api.js',
             [],
-            9.11,
+            JMB_CAPTCHA_VERSION,
             true
         );
     }
