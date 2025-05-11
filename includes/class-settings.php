@@ -90,31 +90,6 @@ class JMB_Captcha_Settings {
             'section'      => 'jmb_captcha_googlekeys_section',
         ]);
 
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_googlekeys',
-            'option_name'  => 'jmb_captcha_v3_status',
-            'field_label'  => 'Enable V3',
-            'field_type'   => 'checkbox',
-            'page'         => 'jmb_captcha_googlekeys',
-            'section'      => 'jmb_captcha_googlekeys_v3_section',
-        ]);
-
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_googlekeys',
-            'option_name'  => 'jmb_captcha_site_v3_key',
-            'field_label'  => 'Site Key',
-            'page'         => 'jmb_captcha_googlekeys',
-            'section'      => 'jmb_captcha_googlekeys_v3_section',
-        ]);
-
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_googlekeys',
-            'option_name'  => 'jmb_captcha_secret_v3_key',
-            'field_label'  => 'Secret Key',
-            'page'         => 'jmb_captcha_googlekeys',
-            'section'      => 'jmb_captcha_googlekeys_v3_section',
-        ]);
-
         if (class_exists('WooCommerce')) {
 
             self::jmb_register_field([
