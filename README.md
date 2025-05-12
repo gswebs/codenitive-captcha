@@ -18,11 +18,6 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 2. Activate the plugin through the 'Plugins' screen in WordPress.
 3. Navigate to **wp-admin → Settings → JMB Captcha**
 
-### Screenshots
-
-1. Admin page with export filters and field checkboxes
-2. Exported CSV with email, name, and other selected fields
-
 ### Frequently Asked Questions
 
 1. **Where are the plugin settings?**  
