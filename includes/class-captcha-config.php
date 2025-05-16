@@ -137,4 +137,43 @@ class JMB_Recaptcha_Config {
         );
     }
 
+    public function verify_captcha($response) {
+
+        // Verify nonce first
+        if (!isset($_POST['jmb_recaptcha_nonce']) ||
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['jmb_recaptcha_nonce'])), 'jmb_recaptcha_action')) {
+            return array(
+                'status' => 'error',
+                'message' => 'Something wrong try again.'
+            );
+        }
+
+        if (empty($response)) {
+            return array(
+                'status' => 'error',
+                'message' => 'Please complete the reCAPTCHA.'
+            );
+        }
+
+        $response = sanitize_text_field($response);
+        $remoteip = $_SERVER['REMOTE_ADDR'];
+
+        $verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
+            'body' => [
+                'secret' => $this->get_secret_key_v2(),
+                'response' => $response,
+                'remoteip' => $remoteip
+            ]
+        ]);
+
+        $result = json_decode(wp_remote_retrieve_body($verify));
+
+        if (empty($result->success)) {
+            return array(
+                'status' => 'error',
+                'message' => 'reCAPTCHA failed. Please try again later'
+            );
+        }
+    }
+
 }
