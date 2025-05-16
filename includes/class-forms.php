@@ -72,18 +72,14 @@ class JMB_Captcha_Render {
 
     }
 
-    public function verify_google_recaptcha() { 
-        $recaptcha = $_POST['g-recaptcha-response']; 
-        if(empty($recaptcha)){ 
-            wp_die(__("<b>ERROR: </b><b>Please click the captcha checkbox.</b><p><a href='javascript:history.back()'>« Back</a></p>")); 
-        }elseif(!is_valid_captcha_response($recaptcha)){ 
-            wp_die(__("<b>Sorry, spam detected!</b>")); 
-        } 
-    } 
-
-    // public function enqueue_scripts() {
-    //     wp_enqueue_script( 'google-recaptcha', 'https://www.google.com/recaptcha/api.js?explicit&hl=' . get_locale(), array(), null, array('strategy' => 'defer'));
-    // }
+    // public function verify_google_recaptcha() { 
+    //     $recaptcha = $_POST['g-recaptcha-response']; 
+    //     if(empty($recaptcha)){ 
+    //         wp_die(__("<b>ERROR: </b><b>Please click the captcha checkbox.</b><p><a href='javascript:history.back()'>« Back</a></p>")); 
+    //     }elseif(!is_valid_captcha_response($recaptcha)){ 
+    //         wp_die(__("<b>Sorry, spam detected!</b>")); 
+    //     } 
+    // } 
 
     public function validate_checkout_captcha() {
         $this->verify_checkout_captcha();
@@ -91,6 +87,7 @@ class JMB_Captcha_Render {
 
     public function display_captcha() {
         if ($this->config->get_site_key_v2()) {
+            wp_nonce_field('jmb_recaptcha_action', 'jmb_recaptcha_nonce');
             if(is_checkout()){
                 echo '<div id="wc-captcha-box"><div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div></div>';
             } else {
@@ -101,7 +98,7 @@ class JMB_Captcha_Render {
 
     public function validate_wplogin_captcha($user, $username, $password) {
         if(isset($_POST['g-recaptcha-response'])){
-            $response = $this->verify_captcha($_POST['g-recaptcha-response']);
+            $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
             if(isset($response['status'])){
                 if ( $response['status'] == "error") {
                     return new WP_Error('Captcha Invalid', __($response['message']));
@@ -112,7 +109,7 @@ class JMB_Captcha_Render {
     }
 
     public function validate_wpregister_captcha($validation_error, $username, $password) {
-        $response = $this->verify_captcha($_POST['g-recaptcha-response']);
+        $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
         if(isset($response['status'])){
             if ( $response['status'] == "error") {
                 $validation_error = new WP_Error('Captcha Invalid', __($response['message']));
@@ -123,7 +120,7 @@ class JMB_Captcha_Render {
 
     public function validate_forgetpass_captcha($validation_errors, $user_data = ''){
         if(isset($_POST['woocommerce-lost-password-nonce'])) {
-            $response = $this->verify_captcha($_POST['g-recaptcha-response']);
+            $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
             if(isset($response['status'])){
                 if ( $response['status'] == "error") {
                     //$validation_error = new WP_Error('Captcha Invalid', __($response['message']));
@@ -134,7 +131,7 @@ class JMB_Captcha_Render {
     }
 
     public function validate_login_captcha($validation_error, $username, $password) {
-        $response = $this->verify_captcha($_POST['g-recaptcha-response']);
+        $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
         if(isset($response['status'])){
             if ( $response['status'] == "error") {
                 $validation_error = new WP_Error('Captcha Invalid', __($response['message']));
@@ -145,7 +142,7 @@ class JMB_Captcha_Render {
 
     public function validate_registration_captcha($validation_error, $username, $password, $email) {
 
-        $response = $this->verify_captcha($_POST['g-recaptcha-response']);
+        $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
 
         if(isset($response['status'])){
             if ( $response['status'] == "error") {
@@ -154,35 +151,6 @@ class JMB_Captcha_Render {
             }
         }
         return $validation_error;
-    }
-
-    public function verify_captcha($response) {
-        if (empty($_POST['g-recaptcha-response'])) {
-            return array(
-                'status' => 'error',
-                'message' => 'Please complete the reCAPTCHA.'
-            );
-        }
-
-        $response = sanitize_text_field($_POST['g-recaptcha-response']);
-        $remoteip = $_SERVER['REMOTE_ADDR'];
-
-        $verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
-            'body' => [
-                'secret' => $this->config->get_secret_key_v2(),
-                'response' => $response,
-                'remoteip' => $remoteip
-            ]
-        ]);
-
-        $result = json_decode(wp_remote_retrieve_body($verify));
-
-        if (empty($result->success)) {
-            return array(
-                'status' => 'error',
-                'message' => 'reCAPTCHA failed. Please try again later'
-            );
-        }
     }
 
     public function verify_checkout_captcha() {
