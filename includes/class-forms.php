@@ -80,7 +80,7 @@ class JMB_Captcha_Render {
 
             echo wp_kses_post( wp_nonce_field( 'jmb_recaptcha_action', 'jmb_recaptcha_nonce' ));
             echo wp_kses_post( $captcha );
-            
+
         }
     }
 
@@ -142,6 +142,12 @@ class JMB_Captcha_Render {
 
     public function verify_checkout_captcha() {
         
+        $secret = $this->config->get_secret_key_v2();
+        if (empty($secret)) {
+            wc_add_notice($this->config->messages('config_invalid'), 'error');
+            return;
+        }
+
         if (!isset($_POST['jmb_recaptcha_nonce']) ||
             ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['jmb_recaptcha_nonce'])), 'jmb_recaptcha_action')) {
             wc_add_notice($this->config->messages('nonce_invalid'), 'error');
@@ -166,7 +172,7 @@ class JMB_Captcha_Render {
 
         $verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
             'body' => [
-                'secret' => $this->config->get_secret_key_v2(),
+                'secret' => $secret,
                 'response' => $response,
                 'remoteip' => $remoteip
             ]
