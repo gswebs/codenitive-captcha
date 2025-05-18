@@ -62,7 +62,7 @@ class JMB_Comments_Captcha_Render {
                 return $commentdata;
         }
         
-        if($post_type !== 'product' && $this->config->get_wp_comments() !== '1') {
+        if($this->config->get_wp_comments() !== '1') {
             return $commentdata;
         }
 
