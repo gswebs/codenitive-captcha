@@ -20,7 +20,7 @@ class JMB_Recaptcha_Config {
     private $checkout;
     private $forgetpass;
     private $comments;
-    private $login_hide;
+    private $login_show;
 
     private static $script_enqueued = false;
 
@@ -45,7 +45,7 @@ class JMB_Recaptcha_Config {
         $this->forgetpass = get_option( 'jmb_captcha_woo_forgetpass', 0 );
         $this->comments = get_option( 'jmb_captcha_woo_comments', 0 );
 
-        $this->login_hide = get_option( 'jmb_captcha_hide_login', 0 );
+        $this->login_show = get_option( 'jmb_captcha_hide_login', 0 );
 
     }
 
@@ -116,8 +116,8 @@ class JMB_Recaptcha_Config {
         return $this->checkout;
     }
 
-    public function get_hide_login(): string {
-        return $this->login_hide;
+    public function get_show_login(): string {
+        return $this->login_show;
     }
 
     public function maybe_enqueue_script() {
@@ -137,42 +137,77 @@ class JMB_Recaptcha_Config {
         );
     }
 
-    public function verify_captcha($response) {
+    public function messages($message){
+        
+        switch ( $message ) {
+            case 'captcha_required':
+                $output = __( '<b>Error: </b>Please complete the CAPTCHA.', 'jmb-captcha' );
+                break;
+            case 'captcha_invalid':
+                $output = __( '<b>Error: </b>The CAPTCHA was incorrect. Please try again.', 'jmb-captcha' );
+                break;
+            case 'nonce_invalid':
+                $output = __( '<b>Error: </b>Security check failed. Please refresh the page and try again.', 'jmb-captcha' );
+                break;
+            default:
+                $output = __( '<b>Error: </b>An unknown CAPTCHA error occurred.', 'jmb-captcha' );
+                break;
+        }
+
+        return $output;
+
+    }
+
+    public function verify_captcha() {
 
         // Verify nonce first
         if (!isset($_POST['jmb_recaptcha_nonce']) ||
             !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['jmb_recaptcha_nonce'])), 'jmb_recaptcha_action')) {
             return array(
                 'status' => 'error',
-                'message' => 'Something wrong try again.'
+                'message' => 'nonce_invalid'
             );
         }
 
-        if (empty($response)) {
-            return array(
-                'status' => 'error',
-                'message' => 'Please complete the reCAPTCHA.'
-            );
-        }
+        if(isset($_POST['g-recaptcha-response'])){
+            
+            $response = sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) );
 
-        $response = sanitize_text_field($response);
-        $remoteip = $_SERVER['REMOTE_ADDR'];
+            if (empty($response)) {
+                return array(
+                    'status' => 'error',
+                    'message' => 'captcha_required'
+                );
+            }
 
-        $verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
-            'body' => [
-                'secret' => $this->get_secret_key_v2(),
-                'response' => $response,
-                'remoteip' => $remoteip
-            ]
-        ]);
+            $remoteip = '';
 
-        $result = json_decode(wp_remote_retrieve_body($verify));
+            if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+                $remoteip = filter_var( $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP );
 
-        if (empty($result->success)) {
-            return array(
-                'status' => 'error',
-                'message' => 'reCAPTCHA failed. Please try again later'
-            );
+                // If it's not a valid IP, fall back to empty string
+                if ( false === $remoteip ) {
+                    $remoteip = '';
+                }
+            }
+
+            $verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
+                'body' => [
+                    'secret' => $this->get_secret_key_v2(),
+                    'response' => $response,
+                    'remoteip' => $remoteip
+                ]
+            ]);
+
+            $result = json_decode(wp_remote_retrieve_body($verify));
+
+            if (empty($result->success)) {
+                return array(
+                    'status' => 'error',
+                    'message' => 'captcha_invalid'
+                );
+            }
         }
     }
 

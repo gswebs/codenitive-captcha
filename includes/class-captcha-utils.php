@@ -1,17 +1,20 @@
 <?php
 trait Recaptcha_Utils {
     public function ck_product($option){
-        $output = ($option == 1 && is_product()) ? 'yes' : 'no';
-        return $output;
-    }
-    
-    public function ck_single($option){
-        $output = ($option == 1 && is_single() && get_post_type() !== 'product') ? 'yes' : 'no';
+        global $post;
+        $output = ($option == 1 && is_singular('product')) ? 'yes' : 'no';
         return $output;
     }
 
-    public function ck_login_hide($option){
-        $output = ($option == 1 && is_user_logged_in()) ? 'no' : 'yes';
+    
+    public function ck_single($option){
+        global $post;
+        $output = ($option == 1 && is_single() && !is_singular('product')) ? 'yes' : 'no';
+        return $output;
+    }
+
+    public function ck_login_show($option){
+        $output = ($option == 1 && is_user_logged_in()) ? 'yes' : 'no';
         return $output;
     }
 
