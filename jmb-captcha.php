@@ -36,7 +36,6 @@ define( 'JMB_CAPTCHA_PLUGIN_BASENAME', plugin_basename( JMB_CAPTCHA_PLUGIN_FILE_
 // Absolute directory path of the plugin
 define( 'JMB_CAPTCHA_PLUGIN_DIR_PATH', plugin_dir_path( JMB_CAPTCHA_PLUGIN_FILE_PATH ) );
 
-require_once JMB_CAPTCHA_PLUGIN_DIR_PATH . 'includes/class-captcha-utils.php';
 require_once JMB_CAPTCHA_PLUGIN_DIR_PATH . 'includes/class-settings.php';
 require_once JMB_CAPTCHA_PLUGIN_DIR_PATH . 'includes/class-captcha-config.php';
 // Load plugin settings and configuration files

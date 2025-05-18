@@ -141,16 +141,22 @@ class JMB_Recaptcha_Config {
         
         switch ( $message ) {
             case 'captcha_required':
-                $output = __( '<b>Error: </b>Please complete the CAPTCHA.', 'jmb-captcha' );
+                $output = __( 'Please complete the CAPTCHA.', 'jmb-captcha' );
                 break;
             case 'captcha_invalid':
-                $output = __( '<b>Error: </b>The CAPTCHA was incorrect. Please try again.', 'jmb-captcha' );
+                $output = __( 'The CAPTCHA was incorrect. Please try again.', 'jmb-captcha' );
                 break;
             case 'nonce_invalid':
-                $output = __( '<b>Error: </b>Security check failed. Please refresh the page and try again.', 'jmb-captcha' );
+                $output = __( 'Security check failed. Please refresh the page and try again.', 'jmb-captcha' );
+                break;
+            case 'verify_invalid':
+                $output = __( 'Verification check failed. Please refresh the page and try again.', 'jmb-captcha' );
+                break;
+            case 'config_invalid':
+                $output = __( 'Something wrong try again later.', 'jmb-captcha' );
                 break;
             default:
-                $output = __( '<b>Error: </b>An unknown CAPTCHA error occurred.', 'jmb-captcha' );
+                $output = __( 'An unknown CAPTCHA error occurred.', 'jmb-captcha' );
                 break;
         }
 
@@ -159,6 +165,14 @@ class JMB_Recaptcha_Config {
     }
 
     public function verify_captcha() {
+
+        $secret = $this->get_secret_key_v2();
+        if (empty($secret)) {
+            return array(
+                'status' => 'error',
+                'message' => 'config_invalid'
+            );
+        }
 
         // Verify nonce first
         if (!isset($_POST['jmb_recaptcha_nonce']) ||
@@ -194,11 +208,18 @@ class JMB_Recaptcha_Config {
 
             $verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
                 'body' => [
-                    'secret' => $this->get_secret_key_v2(),
+                    'secret' => $secret,
                     'response' => $response,
                     'remoteip' => $remoteip
                 ]
             ]);
+
+            if (is_wp_error($verify)) {
+                return array(
+                    'status' => 'error',
+                    'message' => 'verify_invalid'
+                );
+            }
 
             $result = json_decode(wp_remote_retrieve_body($verify));
 

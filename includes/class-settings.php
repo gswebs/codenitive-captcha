@@ -124,20 +124,20 @@ class JMB_Captcha_Settings {
                 'page'         => 'jmb_captcha_options',
                 'section'      => 'jmb_captcha_woo_options_section',
             ]);
-
-            self::jmb_register_field([
-                'option_group' => 'jmb_captcha_options',
-                'option_name'  => 'jmb_captcha_woo_checkout',
-                'field_label'  => 'Checkout',
-                'field_type'   => 'checkbox',
-                'page'         => 'jmb_captcha_options',
-                'section'      => 'jmb_captcha_woo_options_section',
-            ]);
             
             self::jmb_register_field([
                 'option_group' => 'jmb_captcha_options',
                 'option_name'  => 'jmb_captcha_woo_forgetpass',
                 'field_label'  => 'Reset Password',
+                'field_type'   => 'checkbox',
+                'page'         => 'jmb_captcha_options',
+                'section'      => 'jmb_captcha_woo_options_section',
+            ]);
+
+            self::jmb_register_field([
+                'option_group' => 'jmb_captcha_options',
+                'option_name'  => 'jmb_captcha_woo_checkout',
+                'field_label'  => 'Checkout',
                 'field_type'   => 'checkbox',
                 'page'         => 'jmb_captcha_options',
                 'section'      => 'jmb_captcha_woo_options_section',

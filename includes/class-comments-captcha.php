@@ -4,10 +4,6 @@ if (!defined('ABSPATH')) {
 }
 
 class JMB_Comments_Captcha_Render {
-    
-    // Load helper methods
-    // The trait Recaptcha_Utils come from the includes/captcha-utils.php file.
-    use Recaptcha_Utils;
 
     protected $config;
 
@@ -78,7 +74,7 @@ class JMB_Comments_Captcha_Render {
     }
 
     /**
-     * Verify reCAPTCHA response
+     * Verify reCAPTCHA
      */
     private function verify_captcha() {
         $secret = $this->config->get_secret_key_v2();
@@ -86,11 +82,10 @@ class JMB_Comments_Captcha_Render {
             return false;
         }
 
-        // Get the appropriate response token based on version
-        $response_token = '';
-        $response_token = isset($_POST['g-recaptcha-response']) ? sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'])) : '';
+        $captcha_response = '';
+        $captcha_response = isset($_POST['g-recaptcha-response']) ? sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'])) : '';
 
-        if (empty($response_token) && !empty($_POST)) {
+        if (empty($captcha_response) && !empty($_POST)) {
             return false;
         }
 
@@ -103,7 +98,7 @@ class JMB_Comments_Captcha_Render {
         $response = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
         'body' => [
             'secret' => $secret,
-            'response' => $response_token
+            'response' => $captcha_response
         ]
         ]);
 
