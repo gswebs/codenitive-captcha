@@ -71,12 +71,16 @@ class JMB_Captcha_Render {
 
     public function display_captcha() {
         if ($this->config->get_site_key_v2()) {
-            wp_nonce_field('jmb_recaptcha_action', 'jmb_recaptcha_nonce');
+
             if(is_checkout()){
-                echo '<div id="wc-captcha-box"><div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div></div>';
+                $captcha = '<div id="wc-captcha-box"><div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div></div>';
             } else {
-                echo '<div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div>';
+                $captcha = '<div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div>';
             }
+
+            echo wp_kses_post( wp_nonce_field( 'jmb_recaptcha_action', 'jmb_recaptcha_nonce' ));
+            echo wp_kses_post( $captcha );
+            
         }
     }
 
