@@ -85,57 +85,55 @@ class JMB_Captcha_Render {
     }
 
     public function validate_wplogin_captcha($user, $username, $password) {
-        if(isset($_POST['g-recaptcha-response'])){
-            $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
-            if(isset($response['status'])){
-                if ( $response['status'] == "error") {
-                    return new WP_Error('captcha_invalid', $this->config->messages($response['message']));
-                }
-            }
+        $response = $this->config->verify_captcha();
+        if (isset($response['status']) && $response['status'] === 'error') {
+            return new WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $user;
     }
 
     public function validate_wpregister_captcha($validation_error, $username, $password) {
-        $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
-        if(isset($response['status'])){
-            if ( $response['status'] == "error") {
-                $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
-            }
+        $response = $this->config->verify_captcha();
+        if (isset($response['status']) && $response['status'] === 'error') {
+            $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $validation_error;
     }
 
-    public function validate_forgetpass_captcha($validation_errors, $user_data = ''){
-        if(isset($_POST['woocommerce-lost-password-nonce'])) {
-            $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
-            if(isset($response['status'])){
-                if ( $response['status'] == "error") {
-                    //$validation_error = new WP_Error('Captcha Invalid', __($response['message']));
-                    $validation_errors->add( 'captcha_invalid', $this->config->messages($response['message']) );
-                }
-            }
+    public function validate_forgetpass_captcha($validation_errors, $user_data = '') {
+        if (!isset($_POST['woocommerce-lost-password-nonce'])) {
+            return $validation_errors;
         }
+
+        $nonce = sanitize_text_field(wp_unslash($_POST['woocommerce-lost-password-nonce']));
+        if (!wp_verify_nonce($nonce, 'woocommerce-lost-password')) {
+            $validation_errors->add('invalid_nonce', $this->config->messages('nonce_invalid'));
+            return $validation_errors;
+        }
+
+        $response = $this->config->verify_captcha();
+
+        if (isset($response['status']) && $response['status'] === 'error') {
+            $validation_errors->add('captcha_invalid', $this->config->messages($response['message']));
+        }
+
+        return $validation_errors;
     }
 
+
     public function validate_login_captcha($validation_error, $username, $password) {
-        $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
-        if(isset($response['status'])){
-            if ( $response['status'] == "error") {
-                $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
-            }
+        $response = $this->config->verify_captcha();
+        if (isset($response['status']) && $response['status'] === 'error') {
+            $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $validation_error;
     }
 
     public function validate_registration_captcha($validation_error, $username, $password, $email) {
 
-        $response = $this->config->verify_captcha($_POST['g-recaptcha-response']);
-
-        if(isset($response['status'])){
-            if ( $response['status'] == "error") {
-                $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
-            }
+        $response = $this->config->verify_captcha();
+        if (isset($response['status']) && $response['status'] === 'error') {
+            $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $validation_error;
     }
@@ -191,7 +189,7 @@ class JMB_Captcha_Render {
         <div id="recaptcha-script-placeholder"></div>
         <script>
         let captchaRendered = false;
-        let site_key = '<?php echo $this->config->get_site_key_v2(); ?>';
+        let site_key = '<?php echo wp_json_encode($this->config->get_site_key_v2()); ?>'; 
         function renderCaptchaOnCheckout() {
             const wrapper = document.querySelector('#wc-captcha-box');
             if (!wrapper || typeof grecaptcha === 'undefined') return;
