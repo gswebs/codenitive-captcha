@@ -189,7 +189,7 @@ class JMB_Captcha_Render {
         <div id="recaptcha-script-placeholder"></div>
         <script>
         let captchaRendered = false;
-        let site_key = '<?php echo wp_json_encode($this->config->get_site_key_v2()); ?>'; 
+        let site_key = <?php echo wp_json_encode($this->config->get_site_key_v2()); ?>;
         function renderCaptchaOnCheckout() {
             const wrapper = document.querySelector('#wc-captcha-box');
             if (!wrapper || typeof grecaptcha === 'undefined') return;
