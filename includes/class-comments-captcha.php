@@ -16,16 +16,16 @@ class JMB_Comments_Captcha_Render {
     } 
 
     public function render_recaptcha_html($defaults) {
-        if($this->config->get_show_login() !== '1' && is_user_logged_in()){
+        if($this->config->get_show_login() != 1 && is_user_logged_in()){
             return $defaults;
         }
         if(function_exists('is_product')){
-            if(is_product() && $this->config->get_wcc_comments() === '1' ){
+            if(is_product() && $this->config->get_wcc_comments() == 1 ){
                 return $defaults;
             }
         }
-        if($this->config->enable_v2() === '1'){
-            if($this->config->get_wp_comments() === '1'){
+        if($this->config->enable_v2() == 1){
+            if($this->config->get_wp_comments() == 1){
 
                 $this->config->maybe_enqueue_script();
                 $site_key = $this->config->get_site_key_v2();
@@ -46,19 +46,19 @@ class JMB_Comments_Captcha_Render {
         // Get the post type using the post ID
         $post_type = get_post_type($post_id);
 
-        if($this->config->enable_v2() !== '1' || empty($site_key) ){
+        if($this->config->enable_v2() != 1 || empty($site_key) ){
             return $commentdata;
         }
 
-        if($this->config->get_show_login() !== '1' && is_user_logged_in()) {
+        if($this->config->get_show_login() != 1 && is_user_logged_in()) {
             return $commentdata;
         }
 
-        if($post_type === 'product' && $this->config->get_wcc_comments() === '1') {
+        if($post_type === 'product' && $this->config->get_wcc_comments() == 1) {
                 return $commentdata;
         }
         
-        if($this->config->get_wp_comments() !== '1') {
+        if($this->config->get_wp_comments() != 1) {
             return $commentdata;
         }
 

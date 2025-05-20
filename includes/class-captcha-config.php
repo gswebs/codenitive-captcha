@@ -39,12 +39,14 @@ class JMB_Recaptcha_Config {
         $this->wp_forgetpass = get_option('jmb_captcha_wp_forget_pass', 0);
         $this->wp_comments = get_option('jmb_captcha_wp_comments', 0);
 
-        $this->register = get_option( 'jmb_captcha_woo_register', 0 );
-        $this->login = get_option( 'jmb_captcha_woo_login', 0 );
-        $this->checkout = get_option( 'jmb_captcha_woo_checkout', 0 );
-        $this->forgetpass = get_option( 'jmb_captcha_woo_forgetpass', 0 );
-        $this->comments = get_option( 'jmb_captcha_woo_comments', 0 );
-
+        if($this->check_active_woo()){
+            $this->register = get_option( 'jmb_captcha_woo_register', 0 );
+            $this->login = get_option( 'jmb_captcha_woo_login', 0 );
+            $this->checkout = get_option( 'jmb_captcha_woo_checkout', 0 );
+            $this->forgetpass = get_option( 'jmb_captcha_woo_forgetpass', 0 );
+            $this->comments = get_option( 'jmb_captcha_woo_comments', 0 );
+        }
+        
         $this->login_show = get_option( 'jmb_captcha_hide_login', 0 );
 
     }
@@ -56,11 +58,11 @@ class JMB_Recaptcha_Config {
         return self::$instance;
     }
 
-    public function enable_v2(): string {
+    public function enable_v2(): int {
         return $this->enable_v2;
     }
 
-    public function enable_v3(): string {
+    public function enable_v3(): int {
         return $this->enable_v3;
     }
 
@@ -80,44 +82,55 @@ class JMB_Recaptcha_Config {
         return $this->secret_key_v3;
     }
 
-    public function get_wp_login(): string {
+    public function get_wp_login(): int {
         return $this->wp_login;
     }
 
-    public function get_wp_register(): string {
+    public function get_wp_register(): int {
         return $this->wp_register;
     }
 
-    public function get_wp_forgetpass(): string {
+    public function get_wp_forgetpass(): int {
         return $this->wp_forgetpass;
     }
 
-    public function get_wp_comments(): string {
+    public function get_wp_comments(): int {
         return $this->wp_comments;
     }
 
-    public function get_wcc_login(): string {
+    public function get_wcc_login(): int {
         return $this->login;
     }
 
-    public function get_wcc_register(): string {
+    public function get_wcc_register(): int {
         return $this->register;
     }
 
-    public function get_wcc_forgetpass(): string {
+    public function get_wcc_forgetpass(): int {
         return $this->forgetpass;
     }
 
-    public function get_wcc_comments(): string {
+    public function get_wcc_comments(): int {
         return $this->comments;
     }
 
-    public function get_wcc_checkout(): string {
+    public function get_wcc_checkout(): int {
         return $this->checkout;
     }
 
-    public function get_show_login(): string {
+    public function get_show_login(): int {
         return $this->login_show;
+    }
+
+    public function check_active_woo(): bool {
+        $return = false;
+        $active_plugins = apply_filters('active_plugins', get_option( 'active_plugins', array() ));
+        // Check if WooCommerce is active
+        if ( in_array( 'woocommerce/woocommerce.php', $active_plugins ) ) {
+            $return = true;
+        }
+
+        return $return;
     }
 
     public function maybe_enqueue_script() {
@@ -141,7 +154,7 @@ class JMB_Recaptcha_Config {
         
         switch ( $message ) {
             case 'captcha_required':
-                $output = __( 'Please complete the CAPTCHA.', 'jmb-captcha' );
+                $output = __( 'The CAPTCHA was incorrect. Please try again.', 'jmb-captcha' );
                 break;
             case 'captcha_invalid':
                 $output = __( 'The CAPTCHA was incorrect. Please try again.', 'jmb-captcha' );
@@ -160,7 +173,7 @@ class JMB_Recaptcha_Config {
                 break;
         }
 
-        return $output;
+        return apply_filters('jmb_captcha_messages', $output, $message);
 
     }
 

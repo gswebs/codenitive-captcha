@@ -51,29 +51,3 @@ new JMB_Captcha_Render();
 require_once JMB_CAPTCHA_PLUGIN_DIR_PATH . 'includes/class-comments-captcha.php';
 // Initialize CAPTCHA rendering for comment forms
 $JMB_Comments_Captcha_Render = new JMB_Comments_Captcha_Render();
-
-// function jmb_wc_captcha_settings_load() {
-//     // Initialize plugin settings
-//     JMB_Captcha_Settings::init();
-// }
-// add_action( 'plugins_loaded', 'jmb_wc_captcha_settings_load' );
-
-
-
-// Load and initialize CAPTCHA rendering for supported forms
-// function jmb_captcha_init() {
-//     require_once JMB_CAPTCHA_PLUGIN_DIR_PATH . 'includes/class-forms.php';
-
-//     // Initialize CAPTCHA rendering logic for forms
-//     new JMB_Captcha_Render();
-// }
-// add_action( 'init', 'jmb_captcha_init' );
-
-// Load CAPTCHA for WordPress native comment forms
-// function jmb_captcha_load() {
-//     require_once JMB_CAPTCHA_PLUGIN_DIR_PATH . 'includes/class-comments-captcha.php';
-
-//     // Initialize CAPTCHA rendering for comment forms
-//     new JMB_Comments_Captcha_Render();
-// }
-// add_action( 'wp_loaded', 'jmb_captcha_load' );

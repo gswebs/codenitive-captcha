@@ -20,6 +20,17 @@ class JMB_Captcha_Settings {
         );
     }
 
+    public static function check_active_woo(): bool {
+        $return = false;
+        $active_plugins = get_option( 'active_plugins', array() );
+        // Check if WooCommerce is active
+        if ( in_array( 'woocommerce/woocommerce.php', $active_plugins ) ) {
+            $return = true;
+        }
+
+        return $return;
+    }
+
     public static function add_action_links ( $links ) {
         $mylinks = array(
             '<a href="' . admin_url( 'options-general.php?page=jmb-captcha-settings' ) . '" target="_blank">Settings</a>',
@@ -28,6 +39,7 @@ class JMB_Captcha_Settings {
     }
 
     public static function render_settings_page() {
+
         $active_tab = 'googlerecaptcha';
         $nonce = wp_create_nonce( 'jmb_captcha_tabs_nonce' );
 
@@ -77,7 +89,11 @@ class JMB_Captcha_Settings {
 
         add_settings_section('jmb_captcha_googlekeys_section', '<h3>Google Captcha V2</h3><hr>', null, 'jmb_captcha_googlekeys');
         add_settings_section('jmb_captcha_wp_options_section', '<h3>WordPress Options</h3><hr>', null, 'jmb_captcha_options');
-        add_settings_section('jmb_captcha_woo_options_section', '<h3>Woocommerce Options</h3><hr>', null, 'jmb_captcha_options');
+        
+        if (self::check_active_woo()) {
+            add_settings_section('jmb_captcha_woo_options_section', '<h3>Woocommerce Options</h3><hr>', null, 'jmb_captcha_options');
+        }
+        
         add_settings_section('jmb_captcha_miscellaneous_section', '<h3>Miscellaneous</h3><hr>', null, 'jmb_captcha_options');
 
         self::jmb_register_field([
@@ -105,7 +121,7 @@ class JMB_Captcha_Settings {
             'section'      => 'jmb_captcha_googlekeys_section',
         ]);
 
-        if (class_exists('WooCommerce')) {
+        if (self::check_active_woo()) {
 
             self::jmb_register_field([
                 'option_group' => 'jmb_captcha_options',

@@ -25,7 +25,7 @@ class JMB_Captcha_Render {
         }
         add_action('login_enqueue_scripts', array($this->config, 'enqueue_script'));
 
-        if (class_exists('WooCommerce')) {
+        if ($this->config->check_active_woo()) {
         
             if ( $this->config->get_wcc_register() == 1 ) {
                 add_action('woocommerce_register_form', array($this, 'display_captcha'), 20);
@@ -36,7 +36,7 @@ class JMB_Captcha_Render {
                 add_filter('woocommerce_process_login_errors', array($this, 'validate_login_captcha'), 10, 3);
             }
             if ( $this->config->get_wcc_checkout() == 1 ) {
-                if(!is_user_logged_in() || ($this->config->get_show_login() == '1' && is_user_logged_in())){
+                if(!is_user_logged_in() || ($this->config->get_show_login() == 1 && is_user_logged_in())){
                     add_action('woocommerce_review_order_before_submit', array($this, 'display_captcha'), 20);
                     add_action('woocommerce_checkout_process', array($this, 'validate_checkout_captcha'), 10);
                     add_action('wp_footer', array($this, 'add_checkout_recaptcha_script'), 99);
@@ -44,7 +44,6 @@ class JMB_Captcha_Render {
             }
             if ( $this->config->get_wcc_forgetpass() == 1 ) {
                 add_action('woocommerce_lostpassword_form', array($this, 'display_captcha'), 20);
-                add_action('lostpassword_post', array($this, 'validate_forgetpass_captcha'), 10, 2);
             }
 
         }
@@ -60,6 +59,9 @@ class JMB_Captcha_Render {
         }
         if ( $this->config->get_wp_forgetpass() == 1 ) {
             add_action('lostpassword_form', array($this, 'display_captcha'), 20);
+        }
+
+        if ( $this->config->get_wp_forgetpass() == 1 || ( $this->config->check_active_woo() && $this->config->get_wcc_forgetpass() == 1 ) ) {
             add_action('lostpassword_post', array($this, 'validate_forgetpass_captcha'), 21, 3);
         }
 
@@ -71,8 +73,7 @@ class JMB_Captcha_Render {
 
     public function display_captcha() {
         if ($this->config->get_site_key_v2()) {
-
-            if(is_checkout()){
+            if(function_exists('is_checkout') && is_checkout()){
                 $captcha = '<div id="wc-captcha-box"><div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div></div>';
             } else {
                 $captcha = '<div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div>';
@@ -101,14 +102,18 @@ class JMB_Captcha_Render {
     }
 
     public function validate_forgetpass_captcha($validation_errors, $user_data = '') {
-        if (!isset($_POST['woocommerce-lost-password-nonce'])) {
-            return $validation_errors;
+        $response = $this->config->verify_captcha();
+
+        if (isset($response['status']) && $response['status'] === 'error') {
+            $validation_errors->add('captcha_invalid', $this->config->messages($response['message']));
         }
 
-        $nonce = sanitize_text_field(wp_unslash($_POST['woocommerce-lost-password-nonce']));
-        if (!wp_verify_nonce($nonce, 'woocommerce-lost-password')) {
+        return $validation_errors;
+    }
+
+    public function validate_wcforgetpass_captcha($validation_errors, $user_data = '') {
+        if (!isset($_POST['woocommerce-lost-password-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['woocommerce-lost-password-nonce'])), 'lost_password')) {
             $validation_errors->add('invalid_nonce', $this->config->messages('nonce_invalid'));
-            return $validation_errors;
         }
 
         $response = $this->config->verify_captcha();
@@ -130,7 +135,6 @@ class JMB_Captcha_Render {
     }
 
     public function validate_registration_captcha($validation_error, $username, $password, $email) {
-
         $response = $this->config->verify_captcha();
         if (isset($response['status']) && $response['status'] === 'error') {
             $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
