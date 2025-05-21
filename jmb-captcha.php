@@ -50,4 +50,4 @@ new JMB_Captcha_Render();
 // Load CAPTCHA for WordPress native comment forms
 require_once JMB_CAPTCHA_PLUGIN_DIR_PATH . 'includes/class-comments-captcha.php';
 // Initialize CAPTCHA rendering for comment forms
-$JMB_Comments_Captcha_Render = new JMB_Comments_Captcha_Render();
+new JMB_Comments_Captcha_Render();
