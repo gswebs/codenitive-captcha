@@ -20,7 +20,7 @@ class JMB_Recaptcha_Config {
     private $checkout;
     private $forgetpass;
     private $comments;
-    private $login_hide;
+    private $login_show;
 
     private static $script_enqueued = false;
 
@@ -39,13 +39,15 @@ class JMB_Recaptcha_Config {
         $this->wp_forgetpass = get_option('jmb_captcha_wp_forget_pass', 0);
         $this->wp_comments = get_option('jmb_captcha_wp_comments', 0);
 
-        $this->register = get_option( 'jmb_captcha_woo_register', 0 );
-        $this->login = get_option( 'jmb_captcha_woo_login', 0 );
-        $this->checkout = get_option( 'jmb_captcha_woo_checkout', 0 );
-        $this->forgetpass = get_option( 'jmb_captcha_woo_forgetpass', 0 );
-        $this->comments = get_option( 'jmb_captcha_woo_comments', 0 );
-
-        $this->login_hide = get_option( 'jmb_captcha_hide_login', 0 );
+        if($this->check_active_woo()){
+            $this->register = get_option( 'jmb_captcha_woo_register', 0 );
+            $this->login = get_option( 'jmb_captcha_woo_login', 0 );
+            $this->checkout = get_option( 'jmb_captcha_woo_checkout', 0 );
+            $this->forgetpass = get_option( 'jmb_captcha_woo_forgetpass', 0 );
+            $this->comments = get_option( 'jmb_captcha_woo_comments', 0 );
+        }
+        
+        $this->login_show = get_option( 'jmb_captcha_hide_login', 0 );
 
     }
 
@@ -56,11 +58,11 @@ class JMB_Recaptcha_Config {
         return self::$instance;
     }
 
-    public function enable_v2(): string {
+    public function enable_v2(): int {
         return $this->enable_v2;
     }
 
-    public function enable_v3(): string {
+    public function enable_v3(): int {
         return $this->enable_v3;
     }
 
@@ -80,44 +82,55 @@ class JMB_Recaptcha_Config {
         return $this->secret_key_v3;
     }
 
-    public function get_wp_login(): string {
+    public function get_wp_login(): int {
         return $this->wp_login;
     }
 
-    public function get_wp_register(): string {
+    public function get_wp_register(): int {
         return $this->wp_register;
     }
 
-    public function get_wp_forgetpass(): string {
+    public function get_wp_forgetpass(): int {
         return $this->wp_forgetpass;
     }
 
-    public function get_wp_comments(): string {
+    public function get_wp_comments(): int {
         return $this->wp_comments;
     }
 
-    public function get_wcc_login(): string {
+    public function get_wcc_login(): int {
         return $this->login;
     }
 
-    public function get_wcc_register(): string {
+    public function get_wcc_register(): int {
         return $this->register;
     }
 
-    public function get_wcc_forgetpass(): string {
+    public function get_wcc_forgetpass(): int {
         return $this->forgetpass;
     }
 
-    public function get_wcc_comments(): string {
+    public function get_wcc_comments(): int {
         return $this->comments;
     }
 
-    public function get_wcc_checkout(): string {
+    public function get_wcc_checkout(): int {
         return $this->checkout;
     }
 
-    public function get_hide_login(): string {
-        return $this->login_hide;
+    public function get_show_login(): int {
+        return $this->login_show;
+    }
+
+    public function check_active_woo(): bool {
+        $return = false;
+        $active_plugins = apply_filters('active_plugins', get_option( 'active_plugins', array() ));
+        // Check if WooCommerce is active
+        if ( in_array( 'woocommerce/woocommerce.php', $active_plugins ) ) {
+            $return = true;
+        }
+
+        return $return;
     }
 
     public function maybe_enqueue_script() {
@@ -137,42 +150,98 @@ class JMB_Recaptcha_Config {
         );
     }
 
-    public function verify_captcha($response) {
+    public function messages($message){
+        
+        switch ( $message ) {
+            case 'captcha_required':
+                $output = __( 'The CAPTCHA was incorrect. Please try again.', 'codenitive-captcha' );
+                break;
+            case 'captcha_invalid':
+                $output = __( 'The CAPTCHA was incorrect. Please try again.', 'codenitive-captcha' );
+                break;
+            case 'nonce_invalid':
+                $output = __( 'Security check failed. Please refresh the page and try again.', 'codenitive-captcha' );
+                break;
+            case 'verify_invalid':
+                $output = __( 'Verification check failed. Please refresh the page and try again.', 'codenitive-captcha' );
+                break;
+            case 'config_invalid':
+                $output = __( 'Something wrong try again later.', 'codenitive-captcha' );
+                break;
+            default:
+                $output = __( 'An unknown CAPTCHA error occurred.', 'codenitive-captcha' );
+                break;
+        }
+
+        return apply_filters('jmb_captcha_messages', $output, $message);
+
+    }
+
+    public function verify_captcha() {
+
+        $secret = $this->get_secret_key_v2();
+        if (empty($secret)) {
+            return array(
+                'status' => 'error',
+                'message' => 'config_invalid'
+            );
+        }
 
         // Verify nonce first
         if (!isset($_POST['jmb_recaptcha_nonce']) ||
             !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['jmb_recaptcha_nonce'])), 'jmb_recaptcha_action')) {
             return array(
                 'status' => 'error',
-                'message' => 'Something wrong try again.'
+                'message' => 'nonce_invalid'
             );
         }
 
-        if (empty($response)) {
-            return array(
-                'status' => 'error',
-                'message' => 'Please complete the reCAPTCHA.'
-            );
-        }
+        if(isset($_POST['g-recaptcha-response'])){
+            
+            $response = sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) );
 
-        $response = sanitize_text_field($response);
-        $remoteip = $_SERVER['REMOTE_ADDR'];
+            if (empty($response)) {
+                return array(
+                    'status' => 'error',
+                    'message' => 'captcha_required'
+                );
+            }
 
-        $verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
-            'body' => [
-                'secret' => $this->get_secret_key_v2(),
-                'response' => $response,
-                'remoteip' => $remoteip
-            ]
-        ]);
+            $remoteip = '';
 
-        $result = json_decode(wp_remote_retrieve_body($verify));
+            if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
+                $remoteip = filter_var( $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP );
 
-        if (empty($result->success)) {
-            return array(
-                'status' => 'error',
-                'message' => 'reCAPTCHA failed. Please try again later'
-            );
+                // If it's not a valid IP, fall back to empty string
+                if ( false === $remoteip ) {
+                    $remoteip = '';
+                }
+            }
+
+            $verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
+                'body' => [
+                    'secret' => $secret,
+                    'response' => $response,
+                    'remoteip' => $remoteip
+                ]
+            ]);
+
+            if (is_wp_error($verify)) {
+                return array(
+                    'status' => 'error',
+                    'message' => 'verify_invalid'
+                );
+            }
+
+            $result = json_decode(wp_remote_retrieve_body($verify));
+
+            if (empty($result->success)) {
+                return array(
+                    'status' => 'error',
+                    'message' => 'captcha_invalid'
+                );
+            }
         }
     }
 
