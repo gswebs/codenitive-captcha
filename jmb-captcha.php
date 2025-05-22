@@ -7,7 +7,7 @@
 * Requires at least: 5.6
 * Requires PHP:      7.4
 * Author:            Gurjit Singh
-* Author URI:        https://github.com/gswebs
+* Author URI:        https://codenitive.com
 * License:           GPL v2 or later
 * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 * Text Domain:       jmb-captcha

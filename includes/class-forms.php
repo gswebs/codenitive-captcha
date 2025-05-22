@@ -23,6 +23,7 @@ class JMB_Captcha_Render {
             $this->config->maybe_enqueue_script();
         }
         add_action('login_enqueue_scripts', array($this->config, 'enqueue_script'));
+        add_action('login_enqueue_scripts', array($this, 'captcha_style'));
         add_action('wp_enqueue_scripts', array($this, 'captcha_style'));
 
         if ($this->config->check_active_woo()) {
@@ -58,6 +59,7 @@ class JMB_Captcha_Render {
             add_action('register_form', array($this, 'display_captcha'), 20);
             add_action('registration_errors', array($this, 'validate_wpregister_captcha'), 21, 3);
         }
+        
         if ( $this->config->get_wp_forgetpass() == 1 ) {
             add_action('lostpassword_form', array($this, 'display_captcha'), 20);
             add_action('lostpassword_form', array($this, 'wp_forgot_password_hidden_field'));
@@ -145,7 +147,6 @@ class JMB_Captcha_Render {
         return $validation_errors;
 
     }
-
 
     public function validate_login_captcha($validation_error, $username, $password) {
         $response = $this->config->verify_captcha();
