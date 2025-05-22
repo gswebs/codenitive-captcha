@@ -1,9 +1,9 @@
-=== JMB Captcha ===
+=== Codenitive Captcha ===
 Contributors: Gurjit Singh
-Tags: captcha, recaptcha, google recaptcha, woocommerce security, login protection, spam prevention, form security
-Requires at least: 5.5
-Tested up to: 6.5
-Requires PHP: 7.2
+Tags: captcha, recaptcha, google recaptcha, woocommerce security, login protection, spam prevention, form security, woocommerce captcha, wordpress captcha, woocommerce recaptcha, wordpress recaptcha
+Requires at least: 5.6
+Tested up to: 6.8
+Requires PHP: 7.4
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -12,14 +12,14 @@ Secure WordPress and WooCommerce with easy Google reCAPTCHA integration.
 
 == Description ==
 
-**Enhance your website’s security** by integrating CAPTCHA verification into essential WordPress and WooCommerce forms. JMB Captcha helps prevent spam, bot abuse, and unauthorized access by adding **Google reCAPTCHA** (v2) to critical forms:
+**Enhance your website’s security** by integrating CAPTCHA verification into essential WordPress and WooCommerce forms. Codenitive Captcha helps prevent spam, bot abuse, and unauthorized access by adding **Google reCAPTCHA** (v2) to critical forms:
 
 - WordPress Login
 - Registration
 - Lost Password
 - WooCommerce Login, Registration, Checkout
 
-Built for performance and ease of use, JMB Captcha requires no coding and integrates smoothly with your site's design.
+Built for performance and ease of use, Codenitive Captcha requires no coding and integrates smoothly with your site's design.
 
 == Features ==
 
@@ -33,9 +33,9 @@ Built for performance and ease of use, JMB Captcha requires no coding and integr
 
 == Installation ==
 
-1. Upload the plugin folder to `/wp-content/plugins/jmb-captcha`, or install it via the Plugins screen in WordPress.
+1. Upload the plugin folder to `/wp-content/plugins/codenitive-captcha`, or install it via the Plugins screen in WordPress.
 2. Activate the plugin through the 'Plugins' menu.
-3. Go to **Settings → JMB Captcha** to configure your Google reCAPTCHA site and secret keys.
+3. Go to **Settings → Codenitive Captcha** to configure your Google reCAPTCHA site and secret keys.
 4. Choose which forms to protect and which reCAPTCHA type to use (v2 Checkbox).
 5. Save your settings.
 
@@ -77,8 +77,8 @@ Google Captcha V3
 == Upgrade Notice ==
 
 = 1.0.0 =
-First release of JMB Captcha – secure your WordPress site with Google reCAPTCHA.
+First release of Codenitive Captcha – secure your WordPress site with Google reCAPTCHA.
 
 == Credits ==
 
-Developed by [Gurjit Singh]
+Developed by Codenitive [Gurjit Singh]

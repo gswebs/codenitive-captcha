@@ -12,10 +12,10 @@ class JMB_Captcha_Settings {
 
     public static function add_settings_page() {
         add_options_page(
-            'JMB CAPTCHA Settings',
-            'JMB CAPTCHA',
+            'Codenitive CAPTCHA Settings',
+            'Codenitive CAPTCHA',
             'manage_options',
-            'jmb-captcha-settings',
+            'codenitive-captcha-settings',
             array(__CLASS__, 'render_settings_page')
         );
     }

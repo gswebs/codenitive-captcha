@@ -1,19 +1,19 @@
 <?php
 /*
-* Plugin Name: JMB Captcha
-* Plugin URI:  https://wordpress.org/jmb-captcha
+* Plugin Name: Codenitive Captcha
+* Plugin URI:  https://wordpress.org/codenitive-captcha
 * Description: Enhance your website’s security by integrating CAPTCHA verification into essential WordPress and WooCommerce forms. This plugin helps prevent spam, bots, and unauthorized access by adding CAPTCHA challenges to key areas such as login, registration, password reset, checkout, and more. With built-in support for Google reCAPTCHA (v2), this plugin provides a seamless way to protect both the WordPress core and WooCommerce without disrupting the user experience.
 * Version: 1.0.0
 * Requires at least: 5.6
 * Requires PHP:      7.4
-* Author:            Gurjit Singh
+* Author:            Codenitive
 * Author URI:        https://codenitive.com
 * License:           GPL v2 or later
 * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
-* Text Domain:       jmb-captcha
+* Text Domain:       codenitive-captcha
 * Domain Path:       /languages
 *
-* @package jmb-captcha
+* @package codenitive-captcha
 */
 
 if (!defined('ABSPATH')) {
@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 
 $plugin_data = get_file_data(__FILE__, array('version' => 'Version'), 'plugin');
 
-define( 'JMB_CAPTCHA_TEXT_DOMAIN', 'jmb-captcha-td' );
+define( 'JMB_CAPTCHA_TEXT_DOMAIN', 'codenitive-captcha-td' );
 
 // Plugin version (retrieved from plugin header)
 define( 'JMB_CAPTCHA_VERSION', $plugin_data['version'] );
