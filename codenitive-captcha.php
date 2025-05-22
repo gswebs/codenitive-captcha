@@ -22,7 +22,7 @@ if (!defined('ABSPATH')) {
 
 $plugin_data = get_file_data(__FILE__, array('version' => 'Version'), 'plugin');
 
-define( 'JMB_CAPTCHA_TEXT_DOMAIN', 'codenitive-captcha-td' );
+define( 'JMB_CAPTCHA_TEXT_DOMAIN', 'codenitive-captcha' );
 
 // Plugin version (retrieved from plugin header)
 define( 'JMB_CAPTCHA_VERSION', $plugin_data['version'] );

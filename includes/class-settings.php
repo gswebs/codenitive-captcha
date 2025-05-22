@@ -33,7 +33,7 @@ class JMB_Captcha_Settings {
 
     public static function add_action_links ( $links ) {
         $mylinks = array(
-            '<a href="' . admin_url( 'options-general.php?page=jmb-captcha-settings' ) . '" target="_blank">Settings</a>',
+            '<a href="' . admin_url( 'options-general.php?page=codenitive-captcha-settings' ) . '" target="_blank">Settings</a>',
         );
         return array_merge( $links, $mylinks );
     }
@@ -53,8 +53,8 @@ class JMB_Captcha_Settings {
             <h1>JMB CAPTCHA Settings</h1>
 
             <h2 class="nav-tab-wrapper">
-                <a href="?page=jmb-captcha-settings&tab=googlerecaptcha&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="nav-tab <?php echo $active_tab == 'googlerecaptcha' ? 'nav-tab-active' : ''; ?>">Google reCaptcha</a>
-                <a href="?page=jmb-captcha-settings&tab=options&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="nav-tab <?php echo $active_tab == 'options' ? 'nav-tab-active' : ''; ?>">Options</a>
+                <a href="?page=codenitive-captcha-settings&tab=googlerecaptcha&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="nav-tab <?php echo $active_tab == 'googlerecaptcha' ? 'nav-tab-active' : ''; ?>">Google reCaptcha</a>
+                <a href="?page=codenitive-captcha-settings&tab=options&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="nav-tab <?php echo $active_tab == 'options' ? 'nav-tab-active' : ''; ?>">Options</a>
             </h2>
             <br>
             <form method="post" action="options.php">
@@ -125,8 +125,8 @@ class JMB_Captcha_Settings {
 
             self::jmb_register_field([
                 'option_group' => 'jmb_captcha_options',
-                'option_name'  => 'jmb_captcha_woo_register',
-                'field_label'  => 'Registration Form',
+                'option_name'  => 'jmb_captcha_woo_login',
+                'field_label'  => 'Login Form',
                 'field_type'   => 'checkbox',
                 'page'         => 'jmb_captcha_options',
                 'section'      => 'jmb_captcha_woo_options_section',
@@ -134,8 +134,8 @@ class JMB_Captcha_Settings {
 
             self::jmb_register_field([
                 'option_group' => 'jmb_captcha_options',
-                'option_name'  => 'jmb_captcha_woo_login',
-                'field_label'  => 'Login Form',
+                'option_name'  => 'jmb_captcha_woo_register',
+                'field_label'  => 'Registration Form',
                 'field_type'   => 'checkbox',
                 'page'         => 'jmb_captcha_options',
                 'section'      => 'jmb_captcha_woo_options_section',

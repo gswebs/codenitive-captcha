@@ -154,22 +154,22 @@ class JMB_Recaptcha_Config {
         
         switch ( $message ) {
             case 'captcha_required':
-                $output = __( 'The CAPTCHA was incorrect. Please try again.', 'jmb-captcha' );
+                $output = __( 'The CAPTCHA was incorrect. Please try again.', 'codenitive-captcha' );
                 break;
             case 'captcha_invalid':
-                $output = __( 'The CAPTCHA was incorrect. Please try again.', 'jmb-captcha' );
+                $output = __( 'The CAPTCHA was incorrect. Please try again.', 'codenitive-captcha' );
                 break;
             case 'nonce_invalid':
-                $output = __( 'Security check failed. Please refresh the page and try again.', 'jmb-captcha' );
+                $output = __( 'Security check failed. Please refresh the page and try again.', 'codenitive-captcha' );
                 break;
             case 'verify_invalid':
-                $output = __( 'Verification check failed. Please refresh the page and try again.', 'jmb-captcha' );
+                $output = __( 'Verification check failed. Please refresh the page and try again.', 'codenitive-captcha' );
                 break;
             case 'config_invalid':
-                $output = __( 'Something wrong try again later.', 'jmb-captcha' );
+                $output = __( 'Something wrong try again later.', 'codenitive-captcha' );
                 break;
             default:
-                $output = __( 'An unknown CAPTCHA error occurred.', 'jmb-captcha' );
+                $output = __( 'An unknown CAPTCHA error occurred.', 'codenitive-captcha' );
                 break;
         }
 

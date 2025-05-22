@@ -71,7 +71,7 @@ class JMB_Captcha_Render {
 
     public function captcha_style(){
         // Register your own empty CSS file (optional) or attach to one you know is enqueued
-        wp_register_style('jmb-captcha-style', false); // no actual file
+        wp_register_style('jmb-captcha-style', false, array(), '1.0.0');
         wp_enqueue_style('jmb-captcha-style');
 
         // Add your inline CSS to that handle

@@ -65,7 +65,7 @@ class JMB_Comments_Captcha_Render {
         if(!$this->verify_captcha()) {
             wp_die(
                 wp_kses_post($this->config->messages('captcha_invalid')),
-                esc_html__('reCAPTCHA Failed', 'jmb-captcha'),
+                esc_html__('reCAPTCHA Failed', 'codenitive-captcha'),
                 ['back_link' => true]
             );   
         }
