@@ -1,15 +1,16 @@
 <?php
+namespace codenitcaptcha\includes;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class JMB_Comments_Captcha_Render {
+class CODENITCA_Comments_Captcha_Render {
 
     protected $config;
 
-    public function __construct(JMB_Recaptcha_Config $config = null) {
+    public function __construct(CODENITCA_Recaptcha_Config $config = null) {
 
-        $this->config = $config ?: JMB_Recaptcha_Config::get_instance();
+        $this->config = $config ?: CODENITCA_Recaptcha_Config::get_instance();
         
         add_filter('comment_form_defaults', [$this, 'render_recaptcha_html'], 50, 1);
         add_filter('preprocess_comment', [$this, 'comment_captcha_validate'], 10, 1);
@@ -30,7 +31,7 @@ class JMB_Comments_Captcha_Render {
                 $this->config->maybe_enqueue_script();
                 $site_key = $this->config->get_site_key_v2();
                 $captcha = '<div class="g-recaptcha" data-sitekey="' . esc_attr($site_key) . '"></div>';
-                $captcha .= wp_nonce_field( 'jmb_recaptcha_action', 'jmb_recaptcha_nonce', true, false );
+                $captcha .= wp_nonce_field( 'codenitcaptcha_action', 'codenitcaptcha_nonce', true, false );
             
                 $defaults['submit_field'] = $captcha . $defaults['submit_field'];
 
@@ -90,8 +91,8 @@ class JMB_Comments_Captcha_Render {
         }
 
         // Verify nonce first
-        if (!isset($_POST['jmb_recaptcha_nonce']) ||
-            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['jmb_recaptcha_nonce'])), 'jmb_recaptcha_action')) {
+        if (!isset($_POST['codenitcaptcha_nonce']) ||
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
             return false;
         }
 

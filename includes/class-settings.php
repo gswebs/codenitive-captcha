@@ -1,18 +1,19 @@
 <?php
+namespace codenitcaptcha\includes;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class JMB_Captcha_Settings {
+class CODENITCA_Captcha_Settings {
     public static function init() {
         add_action('admin_init', array(__CLASS__, 'register_settings'));
         add_action('admin_menu', array(__CLASS__, 'add_settings_page'));
-        add_filter( 'plugin_action_links_' . JMB_CAPTCHA_PLUGIN_BASENAME, [__CLASS__, 'add_action_links'] );
+        add_filter( 'plugin_action_links_' . CODENITCAPTCHA_PLUGIN_BASENAME, [__CLASS__, 'add_action_links'] );
     }
 
     public static function add_settings_page() {
         add_options_page(
-            'Codenitive CAPTCHA Settings',
+            'CodeNitive CAPTCHA Settings',
             'Codenitive CAPTCHA',
             'manage_options',
             'codenitive-captcha-settings',
@@ -41,16 +42,16 @@ class JMB_Captcha_Settings {
     public static function render_settings_page() {
 
         $active_tab = 'googlerecaptcha';
-        $nonce = wp_create_nonce( 'jmb_captcha_tabs_nonce' );
+        $nonce = wp_create_nonce( 'codenitcaptcha_tabs_nonce' );
 
         if ( isset( $_GET['tab'], $_GET['_wpnonce'] ) &&
-            wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'jmb_captcha_tabs_nonce' )) {
+            wp_verify_nonce( sanitize_text_field( wp_unslash( $_GET['_wpnonce'] ) ), 'codenitcaptcha_tabs_nonce' )) {
             $active_tab = sanitize_key( wp_unslash( $_GET['tab'] ) );
         }
 
         ?>
         <div class="wrap">
-            <h1>JMB CAPTCHA Settings</h1>
+            <h1>CODENITIVE CAPTCHA Settings</h1>
 
             <h2 class="nav-tab-wrapper">
                 <a href="?page=codenitive-captcha-settings&tab=googlerecaptcha&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="nav-tab <?php echo $active_tab == 'googlerecaptcha' ? 'nav-tab-active' : ''; ?>">Google reCaptcha</a>
@@ -65,21 +66,16 @@ class JMB_Captcha_Settings {
                     <a href="https://www.google.com/recaptcha/admin/create" target="_blank">Click here to get the Site and Secret Keys</a>
                     <br>
                     <?php
-                    settings_fields('jmb_captcha_googlekeys');
-                    do_settings_sections('jmb_captcha_googlekeys');
+                    settings_fields('codenitcaptcha_googlekeys');
+                    do_settings_sections('codenitcaptcha_googlekeys');
                 } elseif ($active_tab == 'options') {
-                    settings_fields('jmb_captcha_options');
-                    do_settings_sections('jmb_captcha_options');
+                    settings_fields('codenitcaptcha_options');
+                    do_settings_sections('codenitcaptcha_options');
                 }
                 ?>
                 
                 <?php submit_button(); ?>
             </form>
-            <style>
-                h3{
-                    color: #135e96;
-                }
-            </style>
             
         </div>
         <?php
@@ -87,141 +83,141 @@ class JMB_Captcha_Settings {
 
     public static function register_settings() {
 
-        add_settings_section('jmb_captcha_googlekeys_section', '<h3>Google Captcha V2</h3><hr>', null, 'jmb_captcha_googlekeys');
-        add_settings_section('jmb_captcha_wp_options_section', '<h3>WordPress Options</h3><hr>', null, 'jmb_captcha_options');
+        add_settings_section('codenitcaptcha_googlekeys_section', '<h3>Google Captcha V2</h3><hr>', null, 'codenitcaptcha_googlekeys');
+        add_settings_section('codenitcaptcha_wp_options_section', '<h3>WordPress Options</h3><hr>', null, 'codenitcaptcha_options');
         
         if (self::check_active_woo()) {
-            add_settings_section('jmb_captcha_woo_options_section', '<h3>Woocommerce Options</h3><hr>', null, 'jmb_captcha_options');
+            add_settings_section('codenitcaptcha_woo_options_section', '<h3>Woocommerce Options</h3><hr>', null, 'codenitcaptcha_options');
         }
         
-        add_settings_section('jmb_captcha_miscellaneous_section', '<h3>Miscellaneous</h3><hr>', null, 'jmb_captcha_options');
+        add_settings_section('codenitcaptcha_miscellaneous_section', '<h3>Miscellaneous</h3><hr>', null, 'codenitcaptcha_options');
 
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_googlekeys',
-            'option_name'  => 'jmb_captcha_v2_status',
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_googlekeys',
+            'option_name'  => 'codenitcaptcha_v2_status',
             'field_label'  => 'Enable V2',
             'field_type'   => 'checkbox',
-            'page'         => 'jmb_captcha_googlekeys',
-            'section'      => 'jmb_captcha_googlekeys_section',
+            'page'         => 'codenitcaptcha_googlekeys',
+            'section'      => 'codenitcaptcha_googlekeys_section',
         ]);
 
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_googlekeys',
-            'option_name'  => 'jmb_captcha_site_key',
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_googlekeys',
+            'option_name'  => 'codenitcaptcha_site_key',
             'field_label'  => 'Site Key',
-            'page'         => 'jmb_captcha_googlekeys',
-            'section'      => 'jmb_captcha_googlekeys_section',
+            'page'         => 'codenitcaptcha_googlekeys',
+            'section'      => 'codenitcaptcha_googlekeys_section',
         ]);
 
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_googlekeys',
-            'option_name'  => 'jmb_captcha_secret_key',
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_googlekeys',
+            'option_name'  => 'codenitcaptcha_secret_key',
             'field_label'  => 'Secret Key',
-            'page'         => 'jmb_captcha_googlekeys',
-            'section'      => 'jmb_captcha_googlekeys_section',
+            'page'         => 'codenitcaptcha_googlekeys',
+            'section'      => 'codenitcaptcha_googlekeys_section',
         ]);
 
         if (self::check_active_woo()) {
 
-            self::jmb_register_field([
-                'option_group' => 'jmb_captcha_options',
-                'option_name'  => 'jmb_captcha_woo_login',
+            self::codenitcaptcha_register_field([
+                'option_group' => 'codenitcaptcha_options',
+                'option_name'  => 'codenitcaptcha_woo_login',
                 'field_label'  => 'Login Form',
                 'field_type'   => 'checkbox',
-                'page'         => 'jmb_captcha_options',
-                'section'      => 'jmb_captcha_woo_options_section',
+                'page'         => 'codenitcaptcha_options',
+                'section'      => 'codenitcaptcha_woo_options_section',
             ]);
 
-            self::jmb_register_field([
-                'option_group' => 'jmb_captcha_options',
-                'option_name'  => 'jmb_captcha_woo_register',
+            self::codenitcaptcha_register_field([
+                'option_group' => 'codenitcaptcha_options',
+                'option_name'  => 'codenitcaptcha_woo_register',
                 'field_label'  => 'Registration Form',
                 'field_type'   => 'checkbox',
-                'page'         => 'jmb_captcha_options',
-                'section'      => 'jmb_captcha_woo_options_section',
+                'page'         => 'codenitcaptcha_options',
+                'section'      => 'codenitcaptcha_woo_options_section',
             ]);
             
-            self::jmb_register_field([
-                'option_group' => 'jmb_captcha_options',
-                'option_name'  => 'jmb_captcha_woo_forgetpass',
+            self::codenitcaptcha_register_field([
+                'option_group' => 'codenitcaptcha_options',
+                'option_name'  => 'codenitcaptcha_woo_forgetpass',
                 'field_label'  => 'Reset Password',
                 'field_type'   => 'checkbox',
-                'page'         => 'jmb_captcha_options',
-                'section'      => 'jmb_captcha_woo_options_section',
+                'page'         => 'codenitcaptcha_options',
+                'section'      => 'codenitcaptcha_woo_options_section',
             ]);
 
-            self::jmb_register_field([
-                'option_group' => 'jmb_captcha_options',
-                'option_name'  => 'jmb_captcha_woo_checkout',
+            self::codenitcaptcha_register_field([
+                'option_group' => 'codenitcaptcha_options',
+                'option_name'  => 'codenitcaptcha_woo_checkout',
                 'field_label'  => 'Checkout',
                 'field_type'   => 'checkbox',
-                'page'         => 'jmb_captcha_options',
-                'section'      => 'jmb_captcha_woo_options_section',
+                'page'         => 'codenitcaptcha_options',
+                'section'      => 'codenitcaptcha_woo_options_section',
             ]);
 
-            self::jmb_register_field([
-                'option_group' => 'jmb_captcha_options',
-                'option_name'  => 'jmb_captcha_woo_comments',
+            self::codenitcaptcha_register_field([
+                'option_group' => 'codenitcaptcha_options',
+                'option_name'  => 'codenitcaptcha_woo_comments',
                 'field_label'  => 'Hide from Product Comment Form',
                 'field_type'   => 'checkbox',
-                'page'         => 'jmb_captcha_options',
-                'section'      => 'jmb_captcha_woo_options_section',
+                'page'         => 'codenitcaptcha_options',
+                'section'      => 'codenitcaptcha_woo_options_section',
                 'description'  => 'Check to hide the captcha from products comment form.'
             ]);
 
         }
 
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_options',
-            'option_name'  => 'jmb_captcha_wp_login',
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_options',
+            'option_name'  => 'codenitcaptcha_wp_login',
             'field_label'  => 'Login Form',
             'field_type'   => 'checkbox',
-            'page'         => 'jmb_captcha_options',
-            'section'      => 'jmb_captcha_wp_options_section',
+            'page'         => 'codenitcaptcha_options',
+            'section'      => 'codenitcaptcha_wp_options_section',
         ]);
 
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_options',
-            'option_name'  => 'jmb_captcha_wp_register',
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_options',
+            'option_name'  => 'codenitcaptcha_wp_register',
             'field_label'  => 'Registration Form',
             'field_type'   => 'checkbox',
-            'page'         => 'jmb_captcha_options',
-            'section'      => 'jmb_captcha_wp_options_section',
+            'page'         => 'codenitcaptcha_options',
+            'section'      => 'codenitcaptcha_wp_options_section',
         ]);
 
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_options',
-            'option_name'  => 'jmb_captcha_wp_forget_pass',
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_options',
+            'option_name'  => 'codenitcaptcha_wp_forget_pass',
             'field_label'  => 'Reset Password',
             'field_type'   => 'checkbox',
-            'page'         => 'jmb_captcha_options',
-            'section'      => 'jmb_captcha_wp_options_section',
+            'page'         => 'codenitcaptcha_options',
+            'section'      => 'codenitcaptcha_wp_options_section',
         ]);
 
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_options',
-            'option_name'  => 'jmb_captcha_wp_comments',
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_options',
+            'option_name'  => 'codenitcaptcha_wp_comments',
             'field_label'  => 'Posts Comments',
             'field_type'   => 'checkbox',
-            'page'         => 'jmb_captcha_options',
-            'section'      => 'jmb_captcha_wp_options_section',
+            'page'         => 'codenitcaptcha_options',
+            'section'      => 'codenitcaptcha_wp_options_section',
             'description'  => 'Check to enable the captcha in all post types comment forms including Woocommerce Products. To hide the captcha from Product Comment form check the `Hide from Product Comment Form` option inside the Woocommerce options.'
         ]);
 
-        self::jmb_register_field([
-            'option_group' => 'jmb_captcha_options',
-            'option_name'  => 'jmb_captcha_hide_login',
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_options',
+            'option_name'  => 'codenitcaptcha_hide_login',
             'field_label'  => 'Show for login users',
             'field_type'   => 'checkbox',
-            'page'         => 'jmb_captcha_options',
-            'section'      => 'jmb_captcha_miscellaneous_section',
+            'page'         => 'codenitcaptcha_options',
+            'section'      => 'codenitcaptcha_miscellaneous_section',
             'description'  => 'This will show and hide the captcha from comments and checkout forms.'
         ]);
 
 
     }
 
-    public static function jmb_register_field($args) {
+    public static function codenitcaptcha_register_field($args) {
         $defaults = [
             'option_group'      => '',
             'option_name'       => '',
