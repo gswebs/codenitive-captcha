@@ -44,6 +44,22 @@ Navigate to **wp-admin → Settings → Codenitive Captcha**
 2. **Where on google we can generate Site and Secret Key?**  
 <a href="https://www.google.com/recaptcha/admin/create" target="_blank">Click here to get the Site and Secret Keys</a>
 
+### Privacy
+
+This plugin connects to the external service Google reCAPTCHA to help prevent spam and abuse on your site.
+
+### External Services Used
+
+This plugin uses the following third-party service:
+
+> Google reCAPTCHA v2
+- **Purpose**: Prevent spam and automated abuse during form submissions (e.g. login, registration, checkout).
+- **Data Sent**: When a user submits a protected form, their browser data (such as IP address, user-agent, mouse movements, and interaction behavior) may be sent to Google to determine if the user is human.
+- **When Sent**: Only when a user interacts with a reCAPTCHA-protected form on the site.
+- **Service Provider**: Google LLC
+- **Terms of Service**: https://policies.google.com/terms
+- **Privacy Policy**: https://policies.google.com/privacy
+
 ### Changelog
 
 **0.1.0**  
