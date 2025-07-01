@@ -1,5 +1,5 @@
 let captchaRendered = false;
-let site_key = captcha_obj.sitekey;
+let site_key = codenitcaptcha_captcha_obj.sitekey;
 function renderCaptchaOnCheckout() {
     const wrapper = document.querySelector('#wccn-captcha-box');
     if (!wrapper || typeof grecaptcha === 'undefined') return;

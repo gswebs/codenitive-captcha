@@ -1,5 +1,8 @@
 <?php
 namespace codenitcaptcha\includes;
+
+use \codenitcaptcha\includes\config\CODENITCA_Recaptcha_Config;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -8,15 +11,16 @@ class CODENITCA_Comments_Captcha_Render {
 
     protected $config;
 
-    public function __construct(CODENITCA_Recaptcha_Config $config = null) {
+    public function __construct() {
 
-        $this->config = $config ?: CODENITCA_Recaptcha_Config::get_instance();
+        $this->config = CODENITCA_Recaptcha_Config::get_instance();
         
         add_filter('comment_form_defaults', [$this, 'render_recaptcha_html'], 50, 1);
         add_filter('preprocess_comment', [$this, 'comment_captcha_validate'], 10, 1);
     } 
 
     public function render_recaptcha_html($defaults) {
+
         if($this->config->get_show_login() != 1 && is_user_logged_in()){
             return $defaults;
         }
@@ -56,7 +60,7 @@ class CODENITCA_Comments_Captcha_Render {
         }
 
         if($post_type === 'product' && $this->config->get_wcc_comments() == 1) {
-                return $commentdata;
+            return $commentdata;
         }
         
         if($this->config->get_wp_comments() != 1) {
@@ -83,16 +87,16 @@ class CODENITCA_Comments_Captcha_Render {
             return false;
         }
 
+        // Verify nonce first
+        if (!isset($_POST['codenitcaptcha_nonce']) ||
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
+            return false;
+        }
+
         $captcha_response = '';
         $captcha_response = isset($_POST['g-recaptcha-response']) ? sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'])) : '';
 
         if (empty($captcha_response) && !empty($_POST)) {
-            return false;
-        }
-
-        // Verify nonce first
-        if (!isset($_POST['codenitcaptcha_nonce']) ||
-            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
             return false;
         }
 

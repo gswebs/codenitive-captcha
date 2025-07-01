@@ -1,5 +1,6 @@
 <?php
-namespace codenitcaptcha\includes;
+namespace codenitcaptcha\includes\config;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }

@@ -1,5 +1,8 @@
 <?php
 namespace codenitcaptcha\includes;
+
+use \codenitcaptcha\includes\config\CODENITCA_Recaptcha_Config;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -8,8 +11,8 @@ class CODENITCA_Captcha_Render {
 
     protected $config;
 
-    public function __construct(CODENITCA_Recaptcha_Config $config = null) {
-        $this->config = $config ?: CODENITCA_Recaptcha_Config::get_instance();
+    public function __construct() {
+        $this->config = CODENITCA_Recaptcha_Config::get_instance();
         add_action('init', [$this, 'load_options']);
     }
 
@@ -73,7 +76,7 @@ class CODENITCA_Captcha_Render {
 
     public function captcha_style(){
         // Register your own empty CSS file (optional) or attach to one you know is enqueued
-        wp_register_style('codenitcaptcha-style', false, array(), '1.0.0');
+        wp_register_style('codenitcaptcha-style', false, array(), '1.0.2');
         wp_enqueue_style('codenitcaptcha-style');
 
         // Add your inline CSS to that handle
@@ -84,7 +87,7 @@ class CODENITCA_Captcha_Render {
         if(function_exists('is_checkout') && is_checkout()){
             wp_register_script( 'codenitcaptcha-script-checkout', CODENITCAPTCHA_PLUGIN_DIR_ASSETS_URL.'js/checkout.js', array(), 0.00002, true );
             wp_enqueue_script( 'codenitcaptcha-script-checkout' );
-            wp_localize_script( 'codenitcaptcha-script-checkout', 'captcha_obj', array(
+            wp_localize_script( 'codenitcaptcha-script-checkout', 'codenitcaptcha_captcha_obj', array(
                 'sitekey' => $this->config->get_site_key_v2()
             ) );
         }
@@ -119,7 +122,7 @@ class CODENITCA_Captcha_Render {
     public function validate_wplogin_captcha($user, $username, $password) {
         $response = $this->config->verify_captcha();
         if (isset($response['status']) && $response['status'] === 'error') {
-            return new WP_Error('captcha_invalid', $this->config->messages($response['message']));
+            return new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $user;
     }
@@ -127,7 +130,7 @@ class CODENITCA_Captcha_Render {
     public function validate_wpregister_captcha($validation_error, $username, $password) {
         $response = $this->config->verify_captcha();
         if (isset($response['status']) && $response['status'] === 'error') {
-            $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
+            $validation_error = new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $validation_error;
     }
@@ -163,7 +166,7 @@ class CODENITCA_Captcha_Render {
     public function validate_login_captcha($validation_error, $username, $password) {
         $response = $this->config->verify_captcha();
         if (isset($response['status']) && $response['status'] === 'error') {
-            $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
+            $validation_error = new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $validation_error;
     }
@@ -171,7 +174,7 @@ class CODENITCA_Captcha_Render {
     public function validate_registration_captcha($validation_error, $username, $password, $email) {
         $response = $this->config->verify_captcha();
         if (isset($response['status']) && $response['status'] === 'error') {
-            $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
+            $validation_error = new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $validation_error;
     }

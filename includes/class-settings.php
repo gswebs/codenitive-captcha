@@ -1,5 +1,5 @@
 <?php
-namespace codenitcaptcha\includes;
+namespace codenitcaptcha\includes\settings;
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
@@ -236,6 +236,7 @@ class CODENITCA_Captcha_Settings {
         if (empty($args['sanitize_callback'])) {
             switch ($args['field_type']) {
                 case 'checkbox':
+                    $args['type'] = 'string';
                     $args['sanitize_callback'] = function ($value) {
                         return $value === '1' ? '1' : '0';
                     };
@@ -244,6 +245,7 @@ class CODENITCA_Captcha_Settings {
                 case 'select':
                 case 'text':
                 default:
+                    $args['type'] = 'string';
                     $args['sanitize_callback'] = 'sanitize_text_field';
                     break;
             }
@@ -253,7 +255,8 @@ class CODENITCA_Captcha_Settings {
         register_setting(
             $args['option_group'],
             $args['option_name'],
-            [
+            [   
+                'type' => $args['type'],
                 'sanitize_callback' => $args['sanitize_callback'],
             ]
         );
