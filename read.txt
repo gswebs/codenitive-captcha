@@ -23,13 +23,13 @@ Built for performance and ease of use, Codenitive Captcha requires no coding and
 
 == Features ==
 
-- 🔐 Add **Google reCAPTCHA** (v2) to:
+-- Add **Google reCAPTCHA** (v2) to:
   - WordPress Login, Registration, Lost Password
   - WooCommerce Login, Registration, and Checkout
-- 🛡️ Prevent spam, bots, and brute-force attacks
-- ⚙️ Easy configuration via plugin settings panel
-- 🧩 Compatible with most themes and caching plugins
-- 🧪 Tested with the latest WordPress and WooCommerce versions
+-- Prevent spam, bots, and brute-force attacks
+-- Easy configuration via plugin settings panel
+-- Compatible with most themes and caching plugins
+-- Tested with the latest WordPress and WooCommerce versions
 
 == Installation ==
 
@@ -38,6 +38,22 @@ Built for performance and ease of use, Codenitive Captcha requires no coding and
 3. Go to **Settings → Codenitive Captcha** to configure your Google reCAPTCHA site and secret keys.
 4. Choose which forms to protect and which reCAPTCHA type to use (v2 Checkbox).
 5. Save your settings.
+
+== Privacy ==
+
+This plugin connects to the external service Google reCAPTCHA to help prevent spam and abuse on your site.
+
+=== External Services Used ===
+
+This plugin uses the following third-party service:
+
+**Google reCAPTCHA v2**
+- **Purpose**: Prevent spam and automated abuse during form submissions (e.g. login, registration, checkout).
+- **Data Sent**: When a user submits a protected form, their browser data (such as IP address, user-agent, mouse movements, and interaction behavior) may be sent to Google to determine if the user is human.
+- **When Sent**: Only when a user interacts with a reCAPTCHA-protected form on the site.
+- **Service Provider**: Google LLC
+- **Terms of Service**: https://policies.google.com/terms
+- **Privacy Policy**: https://policies.google.com/privacy
 
 == Frequently Asked Questions ==
 
@@ -50,22 +66,23 @@ Yes! It supports login, registration, and checkout forms in WooCommerce.
 = Will it slow down my site? =  
 No. The plugin is lightweight and optimized to only load CAPTCHA scripts on pages where needed.
 
-= Is this plugin compatible with caching plugins? =  
-Yes, it works with major caching plugins like WP Super Cache, W3 Total Cache, and LiteSpeed.
-
 = Can I customize where CAPTCHA appears? =  
 Yes, you can enable or disable CAPTCHA per form via the settings page.
+Go to **Settings → Codenitive Captcha** to configure your Google reCAPTCHA site and secret keys.
 
 = What if reCAPTCHA doesn't show? =  
 Make sure you've entered valid **site key** and **secret key** from the Google reCAPTCHA admin panel, and that the form you’re testing is enabled in settings.
+
+= Where on google we can generate Site and Secret Key?
+<a href="https://www.google.com/recaptcha/admin/create" target="_blank">Click here to get the Site and Secret Keys</a>
 
 = Comming Next = 
 Google Captcha V3
 
 == Screenshots ==
-
-1. Settings page for reCAPTCHA site and secret keys.
-2. CAPTCHA enabled on WordPress and WooCommerce Forms
+1. Settings page link
+2. Add the reCAPTCHA site and secret keys.
+3. CAPTCHA enabled on WordPress and WooCommerce Forms
 
 == Changelog ==
 

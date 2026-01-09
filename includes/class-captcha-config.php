@@ -1,9 +1,11 @@
 <?php
+namespace codenitcaptcha\includes\config;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class JMB_Recaptcha_Config {
+class CODENITCA_Recaptcha_Config {
     private static $instance = null;
     private $enable_v2;
     private $enable_v3;
@@ -26,28 +28,28 @@ class JMB_Recaptcha_Config {
 
 
     private function __construct() {
-        $this->enable_v2 = get_option('jmb_captcha_v2_status');
-        $this->enable_v3 = get_option('jmb_captcha_v3_status');
+        $this->enable_v2 = get_option('codenitcaptcha_v2_status');
+        $this->enable_v3 = get_option('codenitcaptcha_v3_status');
 
-        $this->site_key_v2 = esc_attr( get_option('jmb_captcha_site_key') );
-        $this->secret_key_v2 = esc_attr( get_option('jmb_captcha_secret_key') );
-        $this->site_key_v3 = esc_attr( get_option('jmb_captcha_site_v3_key') );
-        $this->secret_key_v3 = esc_attr( get_option('jmb_captcha_secret_v3_key') );
+        $this->site_key_v2 = esc_attr( get_option('codenitcaptcha_site_key') );
+        $this->secret_key_v2 = esc_attr( get_option('codenitcaptcha_secret_key') );
+        $this->site_key_v3 = esc_attr( get_option('codenitcaptcha_site_v3_key') );
+        $this->secret_key_v3 = esc_attr( get_option('codenitcaptcha_secret_v3_key') );
 
-        $this->wp_login = get_option( 'jmb_captcha_wp_login', 0 );
-        $this->wp_register = get_option('jmb_captcha_wp_register', 0);
-        $this->wp_forgetpass = get_option('jmb_captcha_wp_forget_pass', 0);
-        $this->wp_comments = get_option('jmb_captcha_wp_comments', 0);
+        $this->wp_login = get_option( 'codenitcaptcha_wp_login', 0 );
+        $this->wp_register = get_option('codenitcaptcha_wp_register', 0);
+        $this->wp_forgetpass = get_option('codenitcaptcha_wp_forget_pass', 0);
+        $this->wp_comments = get_option('codenitcaptcha_wp_comments', 0);
 
         if($this->check_active_woo()){
-            $this->register = get_option( 'jmb_captcha_woo_register', 0 );
-            $this->login = get_option( 'jmb_captcha_woo_login', 0 );
-            $this->checkout = get_option( 'jmb_captcha_woo_checkout', 0 );
-            $this->forgetpass = get_option( 'jmb_captcha_woo_forgetpass', 0 );
-            $this->comments = get_option( 'jmb_captcha_woo_comments', 0 );
+            $this->register = get_option( 'codenitcaptcha_woo_register', 0 );
+            $this->login = get_option( 'codenitcaptcha_woo_login', 0 );
+            $this->checkout = get_option( 'codenitcaptcha_woo_checkout', 0 );
+            $this->forgetpass = get_option( 'codenitcaptcha_woo_forgetpass', 0 );
+            $this->comments = get_option( 'codenitcaptcha_woo_comments', 0 );
         }
         
-        $this->login_show = get_option( 'jmb_captcha_hide_login', 0 );
+        $this->login_show = get_option( 'codenitcaptcha_hide_login', 0 );
 
     }
 
@@ -145,7 +147,7 @@ class JMB_Recaptcha_Config {
             'google-recaptcha',
             'https://www.google.com/recaptcha/api.js',
             [],
-            JMB_CAPTCHA_VERSION,
+            CODENITCAPTCHA_VERSION,
             true
         );
     }
@@ -173,7 +175,7 @@ class JMB_Recaptcha_Config {
                 break;
         }
 
-        return apply_filters('jmb_captcha_messages', $output, $message);
+        return apply_filters('codenitcaptcha_messages', $output, $message);
 
     }
 
@@ -188,8 +190,8 @@ class JMB_Recaptcha_Config {
         }
 
         // Verify nonce first
-        if (!isset($_POST['jmb_recaptcha_nonce']) ||
-            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['jmb_recaptcha_nonce'])), 'jmb_recaptcha_action')) {
+        if (!isset($_POST['codenitcaptcha_nonce']) ||
+            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
             return array(
                 'status' => 'error',
                 'message' => 'nonce_invalid'

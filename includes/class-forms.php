@@ -1,14 +1,18 @@
 <?php
+namespace codenitcaptcha\includes;
+
+use \codenitcaptcha\includes\config\CODENITCA_Recaptcha_Config;
+
 if (!defined('ABSPATH')) {
     exit; // Exit if accessed directly
 }
 
-class JMB_Captcha_Render {
+class CODENITCA_Captcha_Render {
 
     protected $config;
 
-    public function __construct(JMB_Recaptcha_Config $config = null) {
-        $this->config = $config ?: JMB_Recaptcha_Config::get_instance();
+    public function __construct() {
+        $this->config = CODENITCA_Recaptcha_Config::get_instance();
         add_action('init', [$this, 'load_options']);
     }
 
@@ -41,6 +45,7 @@ class JMB_Captcha_Render {
                     add_action('woocommerce_review_order_before_submit', array($this, 'display_captcha'), 20);
                     add_action('woocommerce_checkout_process', array($this, 'validate_checkout_captcha'), 10);
                     add_action('wp_footer', array($this, 'add_checkout_recaptcha_script'), 99);
+                    add_action('wp_enqueue_scripts', array($this, 'captcha_checkout_script'));
                 }
             }
             if ( $this->config->get_wcc_forgetpass() == 1 ) {
@@ -71,11 +76,21 @@ class JMB_Captcha_Render {
 
     public function captcha_style(){
         // Register your own empty CSS file (optional) or attach to one you know is enqueued
-        wp_register_style('jmb-captcha-style', false, array(), '1.0.0');
-        wp_enqueue_style('jmb-captcha-style');
+        wp_register_style('codenitcaptcha-style', false, array(), '1.0.2');
+        wp_enqueue_style('codenitcaptcha-style');
 
         // Add your inline CSS to that handle
-        wp_add_inline_style('jmb-captcha-style', '.g-recaptcha { margin-bottom: 15px; }');
+        wp_add_inline_style('codenitcaptcha-style', '.g-recaptcha { margin-bottom: 15px; }');
+    }
+
+    public function captcha_checkout_script(){
+        if(function_exists('is_checkout') && is_checkout()){
+            wp_register_script( 'codenitcaptcha-script-checkout', CODENITCAPTCHA_PLUGIN_DIR_ASSETS_URL.'js/checkout.js', array(), 0.00002, true );
+            wp_enqueue_script( 'codenitcaptcha-script-checkout' );
+            wp_localize_script( 'codenitcaptcha-script-checkout', 'codenitcaptcha_captcha_obj', array(
+                'sitekey' => $this->config->get_site_key_v2()
+            ) );
+        }
     }
 
     public function wc_forgot_password_hidden_field() {
@@ -93,12 +108,12 @@ class JMB_Captcha_Render {
     public function display_captcha() {
         if ($this->config->get_site_key_v2()) {
             if(function_exists('is_checkout') && is_checkout()){
-                $captcha = '<div id="wc-captcha-box"><div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div></div>';
+                $captcha = '<div id="wccn-captcha-box"><div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div></div>';
             } else {
                 $captcha = '<div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div>';
             }
 
-            echo wp_kses_post( wp_nonce_field( 'jmb_recaptcha_action', 'jmb_recaptcha_nonce' ));
+            echo wp_kses_post( wp_nonce_field( 'codenitcaptcha_action', 'codenitcaptcha_nonce' ));
             echo wp_kses_post( $captcha );
 
         }
@@ -107,7 +122,7 @@ class JMB_Captcha_Render {
     public function validate_wplogin_captcha($user, $username, $password) {
         $response = $this->config->verify_captcha();
         if (isset($response['status']) && $response['status'] === 'error') {
-            return new WP_Error('captcha_invalid', $this->config->messages($response['message']));
+            return new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $user;
     }
@@ -115,7 +130,7 @@ class JMB_Captcha_Render {
     public function validate_wpregister_captcha($validation_error, $username, $password) {
         $response = $this->config->verify_captcha();
         if (isset($response['status']) && $response['status'] === 'error') {
-            $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
+            $validation_error = new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $validation_error;
     }
@@ -151,7 +166,7 @@ class JMB_Captcha_Render {
     public function validate_login_captcha($validation_error, $username, $password) {
         $response = $this->config->verify_captcha();
         if (isset($response['status']) && $response['status'] === 'error') {
-            $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
+            $validation_error = new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $validation_error;
     }
@@ -159,7 +174,7 @@ class JMB_Captcha_Render {
     public function validate_registration_captcha($validation_error, $username, $password, $email) {
         $response = $this->config->verify_captcha();
         if (isset($response['status']) && $response['status'] === 'error') {
-            $validation_error = new WP_Error('captcha_invalid', $this->config->messages($response['message']));
+            $validation_error = new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
         }
         return $validation_error;
     }
@@ -171,8 +186,8 @@ class JMB_Captcha_Render {
             return;
         }
 
-        if (!isset($_POST['jmb_recaptcha_nonce']) ||
-            ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['jmb_recaptcha_nonce'])), 'jmb_recaptcha_action')) {
+        if (!isset($_POST['codenitcaptcha_nonce']) ||
+            ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
             wc_add_notice($this->config->messages('nonce_invalid'), 'error');
             return;
         }
@@ -212,43 +227,6 @@ class JMB_Captcha_Render {
         if (!is_checkout()) return;
         ?>
         <div id="recaptcha-script-placeholder"></div>
-        <script>
-        let captchaRendered = false;
-        let site_key = <?php echo wp_json_encode($this->config->get_site_key_v2()); ?>;
-        function renderCaptchaOnCheckout() {
-            const wrapper = document.querySelector('#wc-captcha-box');
-            if (!wrapper || typeof grecaptcha === 'undefined') return;
-
-            // Remove previous .g-recaptcha to avoid double render
-            const oldRecaptcha = wrapper.querySelector('.g-recaptcha');
-            if (oldRecaptcha) oldRecaptcha.remove();
-
-            // Add new one
-            const newRecaptcha = document.createElement('div');
-            newRecaptcha.className = 'g-recaptcha';
-            wrapper.appendChild(newRecaptcha);
-
-            recaptchaWidgetId = grecaptcha.render(newRecaptcha, {
-                sitekey: site_key
-            });
-        }
-
-        function onRecaptchaApiLoad() {
-            renderCaptchaOnCheckout();
-
-            jQuery(document.body).on('updated_checkout updated_wc_div', function () {
-                renderCaptchaOnCheckout();
-            });
-        }
-
-        document.addEventListener('DOMContentLoaded', function () {
-            const script = document.createElement('script');
-            script.src = "https://www.google.com/recaptcha/api.js?onload=onRecaptchaApiLoad&render=explicit";
-            script.async = true;
-            script.defer = true;
-            document.getElementById('recaptcha-script-placeholder').appendChild(script);
-        });
-        </script>
         <?php
     }
 
