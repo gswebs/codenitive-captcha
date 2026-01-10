@@ -1,9 +1,9 @@
 <?php
 /*
-* Plugin Name: Codenitive Captcha
-* Plugin URI:  https://wordpress.org/codenitive-captcha
-* Description: Enhance your website’s security by integrating CAPTCHA verification into essential WordPress and WooCommerce forms. This plugin helps prevent spam, bots, and unauthorized access by adding CAPTCHA challenges to key areas such as login, registration, password reset, checkout, and more. With built-in support for Google reCAPTCHA (v2), this plugin provides a seamless way to protect both the WordPress core and WooCommerce without disrupting the user experience.
-* Version: 1.0.2
+* Plugin Name: Codenitive CAPTCHA Security
+* Plugin URI:  https://wordpress.org/plugins/codenitive-captcha
+* Description: Enhance your website’s security by integrating CAPTCHA verification into essential WordPress, WooCommerce, Contact form 7 (cf7) forms. This plugin helps prevent spam, bots, and unauthorized access by adding CAPTCHA challenges to key areas such as login, registration, password reset, checkout, and more. With built-in support for Google reCAPTCHA (v2), this plugin provides a seamless way to protect both the WordPress core and WooCommerce without disrupting the user experience.
+* Version: 1.0.5
 * Requires at least: 5.6
 * Requires PHP:      7.4
 * Author:            CodeNitive
@@ -11,7 +11,6 @@
 * License:           GPL v2 or later
 * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
 * Text Domain:       codenitive-captcha
-* Domain Path:       /languages
 *
 * @package codenitive-captcha
 */
@@ -40,6 +39,9 @@ define( 'CODENITCAPTCHA_PLUGIN_DIR_PATH', plugin_dir_path( CODENITCAPTCHA_PLUGIN
 define('CODENITCAPTCHA_PLUGIN_DIR_URL', plugin_dir_url(__FILE__));
 define('CODENITCAPTCHA_PLUGIN_DIR_ASSETS_URL', CODENITCAPTCHA_PLUGIN_DIR_URL.'assets/');
 
+require_once CODENITCAPTCHA_PLUGIN_DIR_PATH . 'includes/class-csrf-secret.php';
+register_activation_hook(__FILE__, ['codenitcaptcha\includes\CODENITCA_Captcha_CSRF', 'activate']);
+
 require_once CODENITCAPTCHA_PLUGIN_DIR_PATH . 'includes/class-settings.php';
 require_once CODENITCAPTCHA_PLUGIN_DIR_PATH . 'includes/class-captcha-config.php';
 // Load plugin settings and configuration files
@@ -55,3 +57,15 @@ new \codenitcaptcha\includes\CODENITCA_Captcha_Render();
 require_once CODENITCAPTCHA_PLUGIN_DIR_PATH . 'includes/class-comments-captcha.php';
 // Initialize CAPTCHA rendering for comment forms
 new \codenitcaptcha\includes\CODENITCA_Comments_Captcha_Render();
+
+function codenitcaptcha_init() {
+
+    if( class_exists( 'WPCF7' ) ) {
+        // Load CAPTCHA for Contact Form 7 forms
+        require_once CODENITCAPTCHA_PLUGIN_DIR_PATH . 'includes/class-cf7-captcha.php';
+        // Initialize CAPTCHA rendering for Contact Form 7
+        \codenitcaptcha\includes\CODENITCA_Captcha_CF7_Render::get_instance();
+    }
+
+}
+add_action( 'plugins_loaded', 'codenitcaptcha_init' );

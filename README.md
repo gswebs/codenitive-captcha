@@ -5,7 +5,7 @@ Tags: captcha, google recaptcha, google-recaptcha
 Requires at least: 5.6
 Tested up to: 6.8  
 Requires PHP: 7.4
-Stable tag: 1.0.2
+Stable tag: 1.0.5
 License: GPLv2 or later  
 License URI: https://www.gnu.org/licenses/gpl-2.0.html  
 
@@ -62,13 +62,41 @@ This plugin uses the following third-party service:
 
 ### Changelog
 
-**0.1.0**  
-*Initial release
+**1.0.0**
+Initial release.
+Google reCAPTCHA v2.
+Integrates with WordPress and WooCommerce forms.
+
+**1.0.2**
+Rename plugin to reCAPTCHA By Codenitive
+
+**1.0.3**
+Rename plugin to Codenitive CAPTCHA Security
+
+**1.0.4**
+Add reCAPTCHA security for Contact form 7 (cf7)
+
+**1.0.5**
+Fix login captcha
 
 ### Upgrade Notice
 
-**0.1.0**
+**1.0.0**
 Initial release.
+Google reCAPTCHA v2.
+Integrates with WordPress and WooCommerce forms.
+
+**1.0.2**
+Rename plugin to reCAPTCHA By Codenitive
+
+**1.0.3**
+Rename plugin to Codenitive CAPTCHA Security
+
+**1.0.4**
+Add reCAPTCHA security for Contact form 7 (cf7)
+
+**1.0.5**
+Fix login captcha
 
 ### License
 

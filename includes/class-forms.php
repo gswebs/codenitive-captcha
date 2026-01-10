@@ -13,7 +13,7 @@ class CODENITCA_Captcha_Render {
 
     public function __construct() {
         $this->config = CODENITCA_Recaptcha_Config::get_instance();
-        add_action('init', [$this, 'load_options']);
+        \add_action('init', [$this, 'load_options']);
     }
 
     public function load_options() {
@@ -23,71 +23,72 @@ class CODENITCA_Captcha_Render {
     }    
 
     public function init_v2() {
-        if(!is_single()){
+        if(! \is_single()){
             $this->config->maybe_enqueue_script();
         }
-        add_action('login_enqueue_scripts', array($this->config, 'enqueue_script'));
-        add_action('login_enqueue_scripts', array($this, 'captcha_style'));
-        add_action('wp_enqueue_scripts', array($this, 'captcha_style'));
+        \add_action('login_enqueue_scripts', array($this->config, 'enqueue_script'));
+        \add_action('login_enqueue_scripts', array($this, 'captcha_style'));
+        \add_action('wp_enqueue_scripts', array($this, 'captcha_style'));
 
-        if ($this->config->check_active_woo()) {
+        if($this->config->check_active_plugin('woocommerce/woocommerce.php')){
         
             if ( $this->config->get_wcc_register() == 1 ) {
-                add_action('woocommerce_register_form', array($this, 'display_captcha'), 20);
-                add_filter('woocommerce_process_registration_errors', array($this, 'validate_registration_captcha'), 5, 4);
+                \add_action('woocommerce_register_form', array($this, 'display_captcha_woo_register'), 20);
+                \add_filter('woocommerce_process_registration_errors', array($this, 'validate_registration_captcha'), 5, 4);
             }
             if ( $this->config->get_wcc_login() == 1 ) {
-                add_action('woocommerce_login_form', array($this, 'display_captcha'), 30);
-                add_filter('woocommerce_process_login_errors', array($this, 'validate_login_captcha'), 10, 3);
+                \add_action('woocommerce_login_form', array($this, 'display_captcha'), 30);
+                \add_filter('woocommerce_process_login_errors', array($this, 'validate_login_captcha'), 30, 3);
             }
             if ( $this->config->get_wcc_checkout() == 1 ) {
-                if(!is_user_logged_in() || ($this->config->get_show_login() == 1 && is_user_logged_in())){
-                    add_action('woocommerce_review_order_before_submit', array($this, 'display_captcha'), 20);
-                    add_action('woocommerce_checkout_process', array($this, 'validate_checkout_captcha'), 10);
-                    add_action('wp_footer', array($this, 'add_checkout_recaptcha_script'), 99);
-                    add_action('wp_enqueue_scripts', array($this, 'captcha_checkout_script'));
+                if(! \is_user_logged_in() || ($this->config->get_show_login() == 1 && \is_user_logged_in())){
+                    \add_action('woocommerce_review_order_before_submit', array($this, 'display_captcha'), 20);
+                    \add_action('woocommerce_checkout_process', array($this, 'validate_checkout_captcha'), 10);
+                    \add_action('wp_footer', array($this, 'add_checkout_recaptcha_script'), 99);
+                    \add_action('wp_enqueue_scripts', array($this, 'captcha_checkout_script'));
                 }
             }
             if ( $this->config->get_wcc_forgetpass() == 1 ) {
-                add_action('woocommerce_lostpassword_form', array($this, 'display_captcha'), 20);
-                add_action('woocommerce_lostpassword_form', array($this, 'wc_forgot_password_hidden_field'));
+                \add_action('woocommerce_lostpassword_form', array($this, 'display_captcha'), 20);
+                \add_action('woocommerce_lostpassword_form', array($this, 'wc_forgot_password_hidden_field'));
             }
 
         }
 
         if ( $this->config->get_wp_login() == 1 ) {
-            add_action('login_form', array($this, 'display_captcha'), 20);
-            add_action('authenticate', array($this, 'validate_wplogin_captcha'), 21, 3);
+            \add_action('login_form', array($this, 'display_captcha'), 20);
+            \add_action('login_form', array($this, 'wp_login_hidden_field'), 21);
+            \add_action('authenticate', array($this, 'validate_wplogin_captcha'), 21, 3);
         }
 
         if ( $this->config->get_wp_register() == 1 ) {
-            add_action('register_form', array($this, 'display_captcha'), 20);
-            add_action('registration_errors', array($this, 'validate_wpregister_captcha'), 21, 3);
+            \add_action('register_form', array($this, 'display_captcha'), 20);
+            \add_action('registration_errors', array($this, 'validate_wpregister_captcha'), 21, 3);
         }
         
         if ( $this->config->get_wp_forgetpass() == 1 ) {
-            add_action('lostpassword_form', array($this, 'display_captcha'), 20);
-            add_action('lostpassword_form', array($this, 'wp_forgot_password_hidden_field'));
+            \add_action('lostpassword_form', array($this, 'display_captcha'), 20);
+            \add_action('lostpassword_form', array($this, 'wp_forgot_password_hidden_field'));
         }
 
-        add_action('lostpassword_post', array($this, 'validate_forgetpass_captcha'), 21, 3);
+        \add_action('lostpassword_post', array($this, 'validate_forgetpass_captcha'), 21, 3);
 
     }
 
     public function captcha_style(){
         // Register your own empty CSS file (optional) or attach to one you know is enqueued
-        wp_register_style('codenitcaptcha-style', false, array(), '1.0.2');
-        wp_enqueue_style('codenitcaptcha-style');
+        \wp_register_style('codenitcaptcha-style', false, array(), '1.0.5');
+        \wp_enqueue_style('codenitcaptcha-style');
 
         // Add your inline CSS to that handle
-        wp_add_inline_style('codenitcaptcha-style', '.g-recaptcha { margin-bottom: 15px; }');
+        \wp_add_inline_style('codenitcaptcha-style', '.g-recaptcha { margin-bottom: 15px; }');
     }
 
     public function captcha_checkout_script(){
-        if(function_exists('is_checkout') && is_checkout()){
-            wp_register_script( 'codenitcaptcha-script-checkout', CODENITCAPTCHA_PLUGIN_DIR_ASSETS_URL.'js/checkout.js', array(), 0.00002, true );
-            wp_enqueue_script( 'codenitcaptcha-script-checkout' );
-            wp_localize_script( 'codenitcaptcha-script-checkout', 'codenitcaptcha_captcha_obj', array(
+        if( \function_exists('is_checkout') && \is_checkout()) {
+            \wp_register_script( 'codenitcaptcha-script-checkout', CODENITCAPTCHA_PLUGIN_DIR_ASSETS_URL.'js/checkout.js', array(), CODENITCAPTCHA_VERSION, true );
+            \wp_enqueue_script( 'codenitcaptcha-script-checkout' );
+            \wp_localize_script( 'codenitcaptcha-script-checkout', 'codenitcaptcha_captcha_obj', array(
                 'sitekey' => $this->config->get_site_key_v2()
             ) );
         }
@@ -101,28 +102,44 @@ class CODENITCA_Captcha_Render {
         echo '<input type="hidden" name="wp_forget" value="wp">';
     }
 
+    public function wp_login_hidden_field(){
+        echo '<input type="hidden" name="codenit_wp_login" value="codenit-wp-login">';
+    }
+
     public function validate_checkout_captcha() {
         $this->verify_checkout_captcha();
     }
 
     public function display_captcha() {
         if ($this->config->get_site_key_v2()) {
-            if(function_exists('is_checkout') && is_checkout()){
+            if( \function_exists('is_checkout') && \is_checkout()){
                 $captcha = '<div id="wccn-captcha-box"><div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div></div>';
             } else {
-                $captcha = '<div class="g-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div>';
+                $captcha = '<div class="g-recaptcha codenitcaptcha-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div>';
             }
+            
+            $nonce = \wp_create_nonce('codenitcaptcha_action');
+            echo '<input type="hidden" name="codenitcaptcha_nonce" value="'.esc_attr( $nonce ).'" />';
 
-            echo wp_kses_post( wp_nonce_field( 'codenitcaptcha_action', 'codenitcaptcha_nonce' ));
-            echo wp_kses_post( $captcha );
+            //echo \wp_kses_post( \wp_nonce_field( 'codenitcaptcha_action', 'codenitcaptcha_nonce' ));
+            echo \wp_kses_post( $captcha );
 
         }
     }
 
+    public function display_captcha_woo_register(){
+        $captcha = '<div id="codenitcaptcha-wooregister-recaptcha" class="g-recaptcha codenitcaptcha-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div>';
+        echo '<input type="hidden" name="wooregister" value="_codenitcaptcha_nonce_wcc_register">';
+        echo \wp_kses_post( \wp_nonce_field( 'codenitcaptcha_action_woo_register', 'codenitcaptcha_nonce_woo_register' ));
+        echo \wp_kses_post( $captcha );
+    }
+
     public function validate_wplogin_captcha($user, $username, $password) {
-        $response = $this->config->verify_captcha();
-        if (isset($response['status']) && $response['status'] === 'error') {
-            return new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
+        if(isset($_POST['codenit_wp_login'])){
+            $response = $this->config->verify_captcha();
+            if (isset($response['status']) && $response['status'] === 'error') {
+                return new \WP_Error('captcha_invalid', $this->config->messages($response['message']));
+            }
         }
         return $user;
     }
@@ -136,9 +153,9 @@ class CODENITCA_Captcha_Render {
     }
 
     public function validate_forgetpass_captcha($validation_errors, $user_data = '') {
-        if($this->config->check_active_woo() && $this->config->get_wcc_forgetpass() == 1){
+        if( $this->config->check_active_plugin('woocommerce/woocommerce.php') && $this->config->get_wcc_forgetpass() == 1){
             if(isset($_POST['wc_forget']) && $_POST['wc_forget'] == 'wc'){
-                if (!isset($_POST['woocommerce-lost-password-nonce']) || !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['woocommerce-lost-password-nonce'])), 'lost_password')) {
+                if (!isset($_POST['woocommerce-lost-password-nonce']) || ! \wp_verify_nonce( \sanitize_text_field( \wp_unslash($_POST['woocommerce-lost-password-nonce'])), 'lost_password')) {
                     $validation_errors->add('invalid_nonce', $this->config->messages('nonce_invalid'));
                 }
 
@@ -182,22 +199,22 @@ class CODENITCA_Captcha_Render {
     public function verify_checkout_captcha() {
         $secret = $this->config->get_secret_key_v2();
         if (empty($secret)) {
-            wc_add_notice($this->config->messages('config_invalid'), 'error');
+            \wc_add_notice($this->config->messages('config_invalid'), 'error');
             return;
         }
 
         if (!isset($_POST['codenitcaptcha_nonce']) ||
-            ! wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
-            wc_add_notice($this->config->messages('nonce_invalid'), 'error');
+            ! \wp_verify_nonce(\sanitize_text_field(\wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
+            \wc_add_notice($this->config->messages('nonce_invalid'), 'error');
             return;
         }
 
         if (empty($_POST['g-recaptcha-response'])) {
-            wc_add_notice($this->config->messages('captcha_required'), 'error');
+            \wc_add_notice($this->config->messages('captcha_required'), 'error');
             return;
         }
 
-        $response = sanitize_text_field( wp_unslash( $_POST['g-recaptcha-response'] ) );
+        $response = \sanitize_text_field( \wp_unslash( $_POST['g-recaptcha-response'] ) );
         
         $remoteip = '';
         if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
@@ -208,7 +225,7 @@ class CODENITCA_Captcha_Render {
             }
         }
 
-        $verify = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
+        $verify = \wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
             'body' => [
                 'secret' => $secret,
                 'response' => $response,
@@ -216,15 +233,15 @@ class CODENITCA_Captcha_Render {
             ]
         ]);
 
-        $result = json_decode(wp_remote_retrieve_body($verify));
+        $result = json_decode(\wp_remote_retrieve_body($verify));
 
         if (empty($result->success)) {
-            wc_add_notice($this->config->messages('captcha_invalid'), 'error');
+            \wc_add_notice($this->config->messages('captcha_invalid'), 'error');
         }
     }
 
     public function add_checkout_recaptcha_script() {
-        if (!is_checkout()) return;
+        if (! \is_checkout()) return;
         ?>
         <div id="recaptcha-script-placeholder"></div>
         <?php

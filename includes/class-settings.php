@@ -32,6 +32,17 @@ class CODENITCA_Captcha_Settings {
         return $return;
     }
 
+    public static function check_active_cf7(): bool {
+        $return = false;
+        $active_plugins = get_option( 'active_plugins', array() );
+        // Check if WooCommerce is active
+        if ( in_array( 'contact-form-7/wp-contact-form-7.php', $active_plugins ) ) {
+            $return = true;
+        }
+
+        return $return;
+    }
+
     public static function add_action_links ( $links ) {
         $mylinks = array(
             '<a href="' . admin_url( 'options-general.php?page=codenitive-captcha-settings' ) . '" target="_blank">Settings</a>',
@@ -86,6 +97,10 @@ class CODENITCA_Captcha_Settings {
         add_settings_section('codenitcaptcha_googlekeys_section', '<h3>Google Captcha V2</h3><hr>', null, 'codenitcaptcha_googlekeys');
         add_settings_section('codenitcaptcha_wp_options_section', '<h3>WordPress Options</h3><hr>', null, 'codenitcaptcha_options');
         
+        if (self::check_active_cf7()) {
+            add_settings_section('codenitcaptcha_wp_options_section', '<h3>Contact Form 7 reCaptcha Options</h3><hr>', null, 'codenitcaptcha_cf7_recaptcha');
+        }
+
         if (self::check_active_woo()) {
             add_settings_section('codenitcaptcha_woo_options_section', '<h3>Woocommerce Options</h3><hr>', null, 'codenitcaptcha_options');
         }
@@ -203,6 +218,18 @@ class CODENITCA_Captcha_Settings {
             'section'      => 'codenitcaptcha_wp_options_section',
             'description'  => 'Check to enable the captcha in all post types comment forms including Woocommerce Products. To hide the captcha from Product Comment form check the `Hide from Product Comment Form` option inside the Woocommerce options.'
         ]);
+
+        if (self::check_active_cf7()) {
+            self::codenitcaptcha_register_field([
+                'option_group' => 'codenitcaptcha_options',
+                'option_name'  => 'codenitcaptcha_cf7_forms',
+                'field_label'  => 'Contact Form 7',
+                'field_type'   => 'checkbox',
+                'page'         => 'codenitcaptcha_options',
+                'section'      => 'codenitcaptcha_wp_options_section',
+                'description'  => 'Check this option and add the [codenit_recaptcha] shortcode in the contact form 7.'
+            ]);
+        }
 
         self::codenitcaptcha_register_field([
             'option_group' => 'codenitcaptcha_options',

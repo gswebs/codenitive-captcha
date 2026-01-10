@@ -15,27 +15,28 @@ class CODENITCA_Comments_Captcha_Render {
 
         $this->config = CODENITCA_Recaptcha_Config::get_instance();
         
-        add_filter('comment_form_defaults', [$this, 'render_recaptcha_html'], 50, 1);
-        add_filter('preprocess_comment', [$this, 'comment_captcha_validate'], 10, 1);
+        \add_filter('comment_form_defaults', [$this, 'render_recaptcha_html'], 50, 1);
+        \add_filter('preprocess_comment', [$this, 'comment_captcha_validate'], 10, 1);
     } 
 
     public function render_recaptcha_html($defaults) {
 
-        if($this->config->get_show_login() != 1 && is_user_logged_in()){
+        if($this->config->get_show_login() != 1 && \is_user_logged_in()){
             return $defaults;
         }
-        if(function_exists('is_product')){
-            if(is_product() && $this->config->get_wcc_comments() == 1 ){
+        if(\function_exists('is_product')){
+            if( \is_product() && $this->config->get_wcc_comments() == 1 ){
                 return $defaults;
             }
         }
+
         if($this->config->enable_v2() == 1){
-            if($this->config->get_wp_comments() == 1){
+            if($this->config->get_wp_comments() == 1) {
 
                 $this->config->maybe_enqueue_script();
                 $site_key = $this->config->get_site_key_v2();
-                $captcha = '<div class="g-recaptcha" data-sitekey="' . esc_attr($site_key) . '"></div>';
-                $captcha .= wp_nonce_field( 'codenitcaptcha_action', 'codenitcaptcha_nonce', true, false );
+                $captcha = '<div class="g-recaptcha codenitcaptcha-recaptcha" data-sitekey="' . \esc_attr($site_key) . '"></div>';
+                $captcha .= \wp_nonce_field( 'codenitcaptcha_action', 'codenitcaptcha_nonce', true, false );
             
                 $defaults['submit_field'] = $captcha . $defaults['submit_field'];
 
@@ -49,13 +50,13 @@ class CODENITCA_Comments_Captcha_Render {
 
         $post_id = $commentdata['comment_post_ID'];
         // Get the post type using the post ID
-        $post_type = get_post_type($post_id);
+        $post_type = \get_post_type($post_id);
 
         if($this->config->enable_v2() != 1 || empty($site_key) ){
             return $commentdata;
         }
 
-        if($this->config->get_show_login() != 1 && is_user_logged_in()) {
+        if($this->config->get_show_login() != 1 && \is_user_logged_in()) {
             return $commentdata;
         }
 
@@ -68,9 +69,9 @@ class CODENITCA_Comments_Captcha_Render {
         }
 
         if(!$this->verify_captcha()) {
-            wp_die(
-                wp_kses_post($this->config->messages('captcha_invalid')),
-                esc_html__('reCAPTCHA Failed', 'codenitive-captcha'),
+            \wp_die(
+                \wp_kses_post($this->config->messages('captcha_invalid')),
+                \esc_html__('reCAPTCHA Failed', 'codenitive-captcha'),
                 ['back_link' => true]
             );   
         }
@@ -89,29 +90,29 @@ class CODENITCA_Comments_Captcha_Render {
 
         // Verify nonce first
         if (!isset($_POST['codenitcaptcha_nonce']) ||
-            !wp_verify_nonce(sanitize_text_field(wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
+            ! \wp_verify_nonce(\sanitize_text_field(\wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
             return false;
         }
 
         $captcha_response = '';
-        $captcha_response = isset($_POST['g-recaptcha-response']) ? sanitize_text_field(wp_unslash($_POST['g-recaptcha-response'])) : '';
+        $captcha_response = isset($_POST['g-recaptcha-response']) ? \sanitize_text_field(\wp_unslash($_POST['g-recaptcha-response'])) : '';
 
         if (empty($captcha_response) && !empty($_POST)) {
             return false;
         }
 
-        $response = wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
+        $response = \wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
         'body' => [
             'secret' => $secret,
             'response' => $captcha_response
         ]
         ]);
 
-        if (is_wp_error($response)) {
+        if (\is_wp_error($response)) {
             return false;
         }
 
-        $body = json_decode(wp_remote_retrieve_body($response), true);
+        $body = json_decode(\wp_remote_retrieve_body($response), true);
 
         return isset($body['success']) && $body['success'];
     }
