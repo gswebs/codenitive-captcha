@@ -115,7 +115,7 @@ Make sure you've entered valid **site key** and **secret key** from the Google r
 * Integrates with WordPress and WooCommerce forms.
 
 = 1.0.2 =
-* Rename plugin to reCAPTCHA By Codenitive
+* Rename plugin to reCAPTCHA By Codenitive Hello
 
 = 1.0.3 =
 * Rename plugin to Codenitive CAPTCHA Security
