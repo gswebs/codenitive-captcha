@@ -66,6 +66,7 @@ class CODENITCA_Captcha_Settings {
 
             <h2 class="nav-tab-wrapper">
                 <a href="?page=codenitive-captcha-settings&tab=googlerecaptcha&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="nav-tab <?php echo $active_tab == 'googlerecaptcha' ? 'nav-tab-active' : ''; ?>">Google reCaptcha</a>
+                <a href="?page=codenitive-captcha-settings&tab=turnstile&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="nav-tab <?php echo $active_tab == 'turnstile' ? 'nav-tab-active' : ''; ?>">Cloudflare Turnstile</a>
                 <a href="?page=codenitive-captcha-settings&tab=options&_wpnonce=<?php echo esc_attr( $nonce ); ?>" class="nav-tab <?php echo $active_tab == 'options' ? 'nav-tab-active' : ''; ?>">Options</a>
             </h2>
             <br>
@@ -79,6 +80,14 @@ class CODENITCA_Captcha_Settings {
                     <?php
                     settings_fields('codenitcaptcha_googlekeys');
                     do_settings_sections('codenitcaptcha_googlekeys');
+                } elseif ($active_tab == 'turnstile') {
+                    ?>
+                    <a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank" rel="noopener noreferrer">Click here to create a Cloudflare Turnstile widget and get keys</a>
+                    <p class="description">If Cloudflare Turnstile and Google reCAPTCHA are both enabled with valid keys, Turnstile is used first.</p>
+                    <br>
+                    <?php
+                    settings_fields('codenitcaptcha_turnstilekeys');
+                    do_settings_sections('codenitcaptcha_turnstilekeys');
                 } elseif ($active_tab == 'options') {
                     settings_fields('codenitcaptcha_options');
                     do_settings_sections('codenitcaptcha_options');
@@ -95,6 +104,7 @@ class CODENITCA_Captcha_Settings {
     public static function register_settings() {
 
         add_settings_section('codenitcaptcha_googlekeys_section', '<h3>Google Captcha V2</h3><hr>', null, 'codenitcaptcha_googlekeys');
+        add_settings_section('codenitcaptcha_turnstilekeys_section', '<h3>Cloudflare Turnstile</h3><hr>', null, 'codenitcaptcha_turnstilekeys');
         add_settings_section('codenitcaptcha_wp_options_section', '<h3>WordPress Options</h3><hr>', null, 'codenitcaptcha_options');
         
         if (self::check_active_cf7()) {
@@ -130,6 +140,32 @@ class CODENITCA_Captcha_Settings {
             'field_label'  => 'Secret Key',
             'page'         => 'codenitcaptcha_googlekeys',
             'section'      => 'codenitcaptcha_googlekeys_section',
+        ]);
+
+
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_turnstilekeys',
+            'option_name'  => 'codenitcaptcha_turnstile_status',
+            'field_label'  => 'Enable Turnstile',
+            'field_type'   => 'checkbox',
+            'page'         => 'codenitcaptcha_turnstilekeys',
+            'section'      => 'codenitcaptcha_turnstilekeys_section',
+        ]);
+
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_turnstilekeys',
+            'option_name'  => 'codenitcaptcha_turnstile_site_key',
+            'field_label'  => 'Site Key',
+            'page'         => 'codenitcaptcha_turnstilekeys',
+            'section'      => 'codenitcaptcha_turnstilekeys_section',
+        ]);
+
+        self::codenitcaptcha_register_field([
+            'option_group' => 'codenitcaptcha_turnstilekeys',
+            'option_name'  => 'codenitcaptcha_turnstile_secret_key',
+            'field_label'  => 'Secret Key',
+            'page'         => 'codenitcaptcha_turnstilekeys',
+            'section'      => 'codenitcaptcha_turnstilekeys_section',
         ]);
 
         if (self::check_active_woo()) {

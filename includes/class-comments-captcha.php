@@ -1,119 +1,102 @@
 <?php
 namespace codenitcaptcha\includes;
 
-use \codenitcaptcha\includes\config\CODENITCA_Recaptcha_Config;
+use codenitcaptcha\includes\config\CODENITCA_Recaptcha_Config;
 
 if (!defined('ABSPATH')) {
-    exit; // Exit if accessed directly
+    exit;
 }
 
 class CODENITCA_Comments_Captcha_Render {
 
     protected $config;
+    protected $assets;
+    protected $verifier;
 
     public function __construct() {
+        $this->config   = CODENITCA_Recaptcha_Config::get_instance();
+        $this->assets   = new CODENITCA_Captcha_Assets($this->config);
+        $this->verifier = new CODENITCA_Captcha_Verifier($this->config);
 
-        $this->config = CODENITCA_Recaptcha_Config::get_instance();
-        
-        \add_filter('comment_form_defaults', [$this, 'render_recaptcha_html'], 50, 1);
-        \add_filter('preprocess_comment', [$this, 'comment_captcha_validate'], 10, 1);
-    } 
+        add_filter('comment_form_defaults', [$this, 'render_recaptcha_html'], 50, 1);
+        add_filter('preprocess_comment', [$this, 'comment_captcha_validate'], 10, 1);
+    }
 
     public function render_recaptcha_html($defaults) {
-
-        if($this->config->get_show_login() != 1 && \is_user_logged_in()){
+        if ($this->config->get_show_login() != 1 && is_user_logged_in()) {
             return $defaults;
         }
-        if(\function_exists('is_product')){
-            if( \is_product() && $this->config->get_wcc_comments() == 1 ){
-                return $defaults;
-            }
+
+        if (function_exists('is_product') && is_product() && $this->config->get_wcc_comments() == 1) {
+            return $defaults;
         }
 
-        if($this->config->enable_v2() == 1){
-            if($this->config->get_wp_comments() == 1) {
+        if ($this->config->is_captcha_enabled() && $this->config->get_wp_comments() == 1) {
+            $this->assets->maybe_enqueue_recaptcha();
+            $this->assets->enqueue_style();
 
-                $this->config->maybe_enqueue_script();
-                $site_key = $this->config->get_site_key_v2();
-                $captcha = '<div class="g-recaptcha codenitcaptcha-recaptcha" data-sitekey="' . \esc_attr($site_key) . '"></div>';
-                $captcha .= \wp_nonce_field( 'codenitcaptcha_action', 'codenitcaptcha_nonce', true, false );
-            
-                $defaults['submit_field'] = $captcha . $defaults['submit_field'];
+            $captcha  = $this->get_captcha_html();
+            $captcha .= wp_nonce_field('codenitcaptcha_action', 'codenitcaptcha_nonce', true, false);
 
-            }
+            $defaults['submit_field'] = $captcha . $defaults['submit_field'];
         }
+
         return $defaults;
     }
 
-    public function comment_captcha_validate($commentdata) {
-        $site_key = $this->config->get_site_key_v2();
+    protected function get_captcha_html(): string {
+        if ('turnstile' === $this->config->get_active_provider()) {
+            return '<div class="cf-turnstile codenitcaptcha-turnstile" data-sitekey="' . esc_attr($this->config->get_turnstile_site_key()) . '"></div>';
+        }
 
-        $post_id = $commentdata['comment_post_ID'];
-        // Get the post type using the post ID
-        $post_type = \get_post_type($post_id);
+        return '<div class="g-recaptcha codenitcaptcha-recaptcha" data-sitekey="' . esc_attr($this->config->get_site_key_v2()) . '"></div>';
+    }
 
-        if($this->config->enable_v2() != 1 || empty($site_key) ){
+    public function comment_captcha_validate( $commentdata ) {
+
+        $post_id   = isset( $commentdata['comment_post_ID'] ) ? (int) $commentdata['comment_post_ID'] : 0;
+        $post_type = $post_id ? get_post_type( $post_id ) : '';
+
+        if ( ! $this->config->is_captcha_enabled() ) {
             return $commentdata;
         }
 
-        if($this->config->get_show_login() != 1 && \is_user_logged_in()) {
+        if ( $this->config->get_show_login() != 1 && is_user_logged_in() ) {
             return $commentdata;
         }
 
-        if($post_type === 'product' && $this->config->get_wcc_comments() == 1) {
-            return $commentdata;
-        }
-        
-        if($this->config->get_wp_comments() != 1) {
+        if ( 'product' === $post_type && $this->config->get_wcc_comments() == 1 ) {
             return $commentdata;
         }
 
-        if(!$this->verify_captcha()) {
-            \wp_die(
-                \wp_kses_post($this->config->messages('captcha_invalid')),
-                \esc_html__('reCAPTCHA Failed', 'codenitive-captcha'),
-                ['back_link' => true]
-            );   
+        if ( $this->config->get_wp_comments() != 1 ) {
+            return $commentdata;
+        }
+
+        // phpcs:disable WordPress.Security.NonceVerification.Missing -- Verifying comment form nonce.
+        $nonce = isset( $_POST['codenitcaptcha_nonce'] )
+            ? sanitize_text_field( wp_unslash( $_POST['codenitcaptcha_nonce'] ) )
+            : '';
+        // phpcs:enable WordPress.Security.NonceVerification.Missing
+
+        if ( empty( $nonce ) || ! wp_verify_nonce( $nonce, 'codenitcaptcha_action' ) ) {
+            wp_die(
+                esc_html( $this->config->messages( 'nonce_invalid' ) ),
+                esc_html__( 'CAPTCHA Failed', 'codenitive-captcha' ),
+                array( 'back_link' => true )
+            );
+        }
+
+        $response = $this->verifier->verify_post();
+
+        if ( isset( $response['status'] ) && 'error' === $response['status'] ) {
+            wp_die(
+                esc_html( $this->config->messages( $response['message'] ) ),
+                esc_html__( 'CAPTCHA Failed', 'codenitive-captcha' ),
+                array( 'back_link' => true )
+            );
         }
 
         return $commentdata;
-    }
-
-    /**
-     * Verify reCAPTCHA
-     */
-    private function verify_captcha() {
-        $secret = $this->config->get_secret_key_v2();
-        if (empty($secret)) {
-            return false;
-        }
-
-        // Verify nonce first
-        if (!isset($_POST['codenitcaptcha_nonce']) ||
-            ! \wp_verify_nonce(\sanitize_text_field(\wp_unslash($_POST['codenitcaptcha_nonce'])), 'codenitcaptcha_action')) {
-            return false;
-        }
-
-        $captcha_response = '';
-        $captcha_response = isset($_POST['g-recaptcha-response']) ? \sanitize_text_field(\wp_unslash($_POST['g-recaptcha-response'])) : '';
-
-        if (empty($captcha_response) && !empty($_POST)) {
-            return false;
-        }
-
-        $response = \wp_remote_post('https://www.google.com/recaptcha/api/siteverify', [
-        'body' => [
-            'secret' => $secret,
-            'response' => $captcha_response
-        ]
-        ]);
-
-        if (\is_wp_error($response)) {
-            return false;
-        }
-
-        $body = json_decode(\wp_remote_retrieve_body($response), true);
-
-        return isset($body['success']) && $body['success'];
     }
 }

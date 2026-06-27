@@ -1,14 +1,14 @@
 === Codenitive CAPTCHA Security ===
 Contributors: gswebdev
 Tags: google recaptcha, wordpress captcha, woocommerce security, Contact form 7 (cf7)
-Requires at least: 5.6
-Tested up to: 6.8.2
+Requires at least: 6.3
+Tested up to: 6.3
 Requires PHP: 7.4
-Stable tag: 1.0.5
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-Protect your WordPress and WooCommerce login, registration, and checkout Contact form 7 (cf7) forms with lightweight Google reCAPTCHA v2.
+Add Google reCAPTCHA v2 and Cloudflare Turnstile CAPTCHA protection to WordPress, WooCommerce and Contact Form 7.
 
 == Description ==
 
@@ -115,7 +115,7 @@ Make sure you've entered valid **site key** and **secret key** from the Google r
 * Integrates with WordPress and WooCommerce forms.
 
 = 1.0.2 =
-* Rename plugin to reCAPTCHA By Codenitive Hello
+* Rename plugin to reCAPTCHA By Codenitive
 
 = 1.0.3 =
 * Rename plugin to Codenitive CAPTCHA Security
@@ -132,7 +132,7 @@ Make sure you've entered valid **site key** and **secret key** from the Google r
 First release of Codenitive Captcha – secure your WordPress site with Google reCAPTCHA.
 
 = 1.0.2 =
-* Rename plugin to reCAPTCHA By Codenitive 
+* Rename plugin to reCAPTCHA By Codenitive
 
 = 1.0.3 =
 * Rename plugin to Codenitive CAPTCHA Security
@@ -149,3 +149,11 @@ If you like this plugin, please [leave us a 5-star review](https://wordpress.org
 It helps us improve and grow!
 
 Need help or have a feature request? Use the [Support Forum](https://wordpress.org/support/plugin/codenitive-captcha/).
+
+== Changelog ==
+
+= 1.1.0 =
+* Added Cloudflare Turnstile support.
+* Added Turnstile settings tab with site key and secret key fields.
+* Added server-side Turnstile verification using Cloudflare Siteverify.
+* Updated frontend rendering to avoid duplicate CAPTCHA script/widget rendering.

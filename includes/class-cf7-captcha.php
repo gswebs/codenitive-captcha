@@ -24,6 +24,10 @@ if (!class_exists('CODENITCA_Captcha_CF7_Render')) {
 
         private $config;
 
+        private $assets;
+
+        private $verifier;
+
         private static $script_enqueued = false;
 
         public static function get_instance() {
@@ -42,12 +46,17 @@ if (!class_exists('CODENITCA_Captcha_CF7_Render')) {
 
             $this->config = CODENITCA_Recaptcha_Config::get_instance();
 
-            // Get keys from options
-            $this->site_key = $this->config->get_site_key_v2();
+            $this->assets = new CODENITCA_Captcha_Assets($this->config);
 
-            $this->secret_key = $this->config->get_secret_key_v2();
+            $this->verifier = new CODENITCA_Captcha_Verifier($this->config);
+
+            // Get keys from options
+            $this->site_key = ('turnstile' === $this->config->get_active_provider()) ? $this->config->get_turnstile_site_key() : $this->config->get_site_key_v2();
+
+            $this->secret_key = ('turnstile' === $this->config->get_active_provider()) ? $this->config->get_turnstile_secret_key() : $this->config->get_secret_key_v2();
 
             if ( $this->config->get_cf7_option() == 1 ) {
+                $this->assets->maybe_enqueue_captcha();
                 // Add hooks    
                 if(!is_user_logged_in() || ($this->config->get_show_login() == 1 && is_user_logged_in())){
                     \add_action( 'wp_loaded', array($this, 'init_hooks'), 15 );
@@ -115,12 +124,13 @@ if (!class_exists('CODENITCA_Captcha_CF7_Render')) {
                 
                 $this->csrf_token = CODENITCA_Captcha_CSRF::get_csrf_token();
 
-                \wp_enqueue_script( 'google-recaptcha' );
+                $this->assets->enqueue_captcha();
 
                 $atts['data-sitekey'] = $this->site_key;
         
+                $captcha_class = ('turnstile' === $this->config->get_active_provider()) ? 'cf-turnstile codenitcaptcha-turnstile' : 'g-recaptcha codenitcaptcha-recaptcha';
                 $atts['class'] = $tag->get_class_option(
-                    \wpcf7_form_controls_class( $tag->type, 'g-recaptcha' ) 
+                    \wpcf7_form_controls_class( $tag->type, $captcha_class )
                 );
 
                 //$atts['id'] = $tag->get_id_option();
@@ -130,9 +140,11 @@ if (!class_exists('CODENITCA_Captcha_CF7_Render')) {
                     <input type="hidden" name="csrf_time" value="'.esc_attr($this->csrf_token['csrf_time']).'" />
                     <input type="hidden" name="csrf_token" value="'.esc_attr($this->csrf_token['csrf_token']).'" />
                 </span>';
-                $html .= $this->recaptcha_noscript(
-                    array( 'sitekey' => $atts['data-sitekey'] ) 
-                );
+                if ('recaptcha' === $this->config->get_active_provider()) {
+                    $html .= $this->recaptcha_noscript(
+                        array( 'sitekey' => $atts['data-sitekey'] )
+                    );
+                }
 
                 $html = \sprintf(  '<span class="wpcf7-form-control-wrap codenit_recaptcha" data-name="codenit_recaptcha">%1$s</span>%2$s', $html, $html_nonce );
             }
@@ -148,6 +160,10 @@ if (!class_exists('CODENITCA_Captcha_CF7_Render')) {
             $this->csrf_token_verify = CODENITCA_Captcha_CSRF::verify_csrf_token($nonce[1], $nonce[0]);
             if ( ! $this->csrf_token_verify ) {
                 return false;
+            }
+
+            if ('turnstile' === $this->config->get_active_provider() && isset($_POST['cf-turnstile-response']) ) {
+                return \sanitize_text_field( \wp_unslash( $_POST['cf-turnstile-response'] ) );
             }
 
             if ( isset($_POST['g-recaptcha-response']) ) {
@@ -275,15 +291,17 @@ if (!class_exists('CODENITCA_Captcha_CF7_Render')) {
                 $tag->name = 'codenit_recaptcha';
             }
 
+            $response_field = ('turnstile' === $this->config->get_active_provider()) ? 'cf-turnstile-response' : 'g-recaptcha-response';
+
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in validate_nonce()
-            if ( !isset( $_POST['g-recaptcha-response'] ) ) {
+            if ( !isset( $_POST[$response_field] ) ) {
                 $result->invalidate(
                     $tag,
                     ($this->config->messages('config_invalid') )
                 );
-            } 
+            }
             // phpcs:ignore WordPress.Security.NonceVerification.Missing -- Verified in validate_nonce()
-            else if ( empty( $_POST['g-recaptcha-response'] ) ) {
+            else if ( empty( $_POST[$response_field] ) ) {
                 $result->invalidate(
                     $tag,
                     ($this->config->messages('captcha_invalid'))
@@ -294,53 +312,24 @@ if (!class_exists('CODENITCA_Captcha_CF7_Render')) {
         }
 
         public function verify( $nonce_token, $response_token ) {
-			$is_human = false;
 
-            // Verify nonce first
-            if ( empty( $nonce_token ) ) {
-				return $is_human;
-			}
-
-			if ( empty( $response_token ) ) {
-				return $is_human;
-			}
-
-            $remoteip = '';
-            if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
-                // phpcs:ignore WordPress.Security.ValidatedSanitizedInput.MissingUnslash
-                $remoteip = filter_var( $_SERVER['REMOTE_ADDR'], FILTER_VALIDATE_IP );
-                if ( false === $remoteip ) {
-                    $remoteip = '';
-                }
+            if ( empty( $nonce_token ) || empty( $response_token ) ) {
+                return false;
             }
 
-			$source		= 'google.com';
-			$endpoint	= \sprintf( 'https://www.%s/recaptcha/api/siteverify', $source );
-			$sitekey	= $this->site_key;
-			$secret		= $this->secret_key;
-			$request	= array(
-				'body' => array(
-					'secret' => $secret,
-					'response' => $response_token,
-					'remoteip' => $remoteip,
-				),
-			);
+            $is_human = $this->verifier->verify_token(
+                $response_token,
+                $this->secret_key
+            );
 
-			$response = \wp_safe_remote_post( esc_url_raw( $endpoint ), $request );
-
-			if ( 200 != \wp_remote_retrieve_response_code( $response ) ) {
-				return $is_human;
-			}
-
-			$response = \wp_remote_retrieve_body( $response );
-
-			$response = json_decode( $response, true );
-
-			$is_human = isset( $response['success'] ) && true == $response['success'];
-
-			return \apply_filters( 'wpcf7_recaptcha_verify_response', $is_human, $response );
-
-		}
+            return apply_filters(
+                'codenitcaptcha_wpcf7_recaptcha_verify_response',
+                $is_human,
+                array(
+                    'success' => $is_human,
+                )
+            );
+        }
 
     }
 }
