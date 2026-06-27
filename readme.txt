@@ -1,8 +1,8 @@
 === Codenitive CAPTCHA Security ===
 Contributors: gswebdev
-Tags: google recaptcha, wordpress captcha, woocommerce security, Contact form 7 (cf7)
+Tags: google recaptcha, wordpress captcha, woocommerce security, Contact form 7 (cf7), Cloudflare Turnstile
 Requires at least: 6.3
-Tested up to: 6.3
+Tested up to: 7.0
 Requires PHP: 7.4
 Stable tag: 1.1.0
 License: GPLv2 or later
@@ -99,8 +99,9 @@ Make sure you've entered valid **site key** and **secret key** from the Google r
 
 <a href="https://www.google.com/recaptcha/admin/create" target="_blank">Click here to get the Site and Secret Keys</a>
 
-== Coming Next ==
-- Google reCAPTCHA v3 support
+= Where can I generate Cloudflare Turnstile Site and Secret Keys? =
+
+<a href="https://dash.cloudflare.com/?to=/:account/turnstile" target="_blank">Click here to get the Site and Secret Keys</a>
 
 == Screenshots ==
 1. Plugin settings page in WordPress dashboard
